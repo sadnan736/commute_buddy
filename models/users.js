@@ -7,6 +7,12 @@ const userSchema = new mongoose.Schema({
 
   password: { type: String, required: true },
 
+  role: {
+    type: String,
+    enum: ["user", "verifiedReporter", "moderator", "admin"],
+    default: "user",
+  },
+
   avatar: { type: String},
 
   homeLocation: { type: String},
@@ -39,6 +45,16 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+
+  verificationStatus: { 
+    type: String, 
+    enum: ["none", "pending", "approved", "rejected"],
+    default: "none" 
+  },
+
+  verificationSubmittedAt: { type: Date },
+
+  verificationComments: { type: String },
 
   savedPlaces: {type: [
       {

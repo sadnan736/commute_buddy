@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/users");
 const authenticate = require("../middleware/auth");
+const authorize = require("../middleware/authorize");
 
 const router = express.Router();
 
@@ -112,7 +113,12 @@ router.post("/:id/verify", authenticate, async (req, res) => {
     const { documents } = req.body; // e.g., array of file URLs/names
     const user = await User.findByIdAndUpdate(
       req.params.id,
-      { verifiedDocuments: documents, isVerified: false },
+      { 
+        verifiedDocuments: documents, 
+        isVerified: false,
+        verificationStatus: "pending",
+        verificationSubmittedAt: new Date()
+      },
       { new: true }
     ).select("-password");
     res.json({ message: "Verification documents submitted", user });
@@ -196,7 +202,19 @@ router.put("/:id/preferred-regions", authenticate, async (req, res) => {
   }
 });
 
+/*
+# Admin routes have been moved to routes/adminRoutes.js
+# This includes:
+# - User role management: PUT /api/admin/users/:id/role
+# - Verification management: GET/PUT /api/admin/verification/*
 
+# How to create the first admin:
+1. Open MongoDB Atlas → Collections → users.
+2. Edit the trusted user document.
+3. Add/modify: "role": "admin"
 
+Note: New sign-ups automatically get role: "user"
+Admin endpoints are now at /api/admin/*
+*/
 
 module.exports = router;
