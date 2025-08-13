@@ -76,7 +76,7 @@ function updateSavedPlacesUI() {
     listContainer.innerHTML = ""; // clear old buttons
 
     for (let placeName in saved_places) {
-        let btn = document.createElement("button");
+        let btn = document.createElement("div");
         btn.classList.add("filter-btn");
         btn.textContent = placeName;
         btn.addEventListener("click", function() {

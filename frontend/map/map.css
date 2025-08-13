@@ -24,6 +24,8 @@ body {
         border-radius: 5px;
         color: white;
         cursor: pointer;
+        text-align: center;
+        font-size: 0.9rem;
     }
     .filter-btn:hover {
         background-color: #333;
@@ -33,10 +35,17 @@ body {
     }
     .sort-option {
         background-color: #222;
-        border-radius: 5px;
-        padding: 10px;
+        border: none;
+        padding: 8px 12px;
         margin: 5px 0;
+        border-radius: 5px;
+        color: white;
         cursor: pointer;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+    .sort-option:hover {
+        background-color: #333;
     }
     .map-container {
         flex: 1;
@@ -46,7 +55,11 @@ body {
         height: 100%;
         width: 100%;
     }
+    .saved-section {
+        margin-top: 20px;
+    }
     .save-btn {
+        
         position: absolute;
         bottom: 20px;
         right: 20px;
