@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dhaka Map - CommuteBuddy Style</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+ <link rel="stylesheet" href="./map.css">
+</head>
+<body>
+
+<div class="sidebar">
+    <h3>Filters</h3>
+    <button class="filter-btn">Accidents</button>
+    <button class="filter-btn">Congestion</button>
+    <button class="filter-btn">Hazards</button>
+    <button class="filter-btn">Events</button>
+    
+    <div class="sort-section">
+        <h3>Sort By</h3>
+        <div class="sort-option">Time</div>
+        <div class="sort-option">Credibility (Votes)</div>
+    </div>
+
+    <div class="saved-section">
+        <h3>Saved Places</h3>
+        <div id="savedPlacesList"></div>
+    </div>
+</div>
+
+
+<div class="map-container">
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <button class="save-btn" id="saveLocationBtn" style="display: none;">Save Location</button>
+</div>
+
+<div id="locationOverlay" class="overlay">
+    <div class="overlay-content">
+        <span class="close-btn" id="closeOverlay">&times;</span>
+        <h2>Save Location</h2>
+        <input type="text" id="locationInput" placeholder="Enter location name" />
+        <button id="confirmSave">Save</button>
+    </div>
+</div>
+
+
+
+<script src="./map.js"></script>
+
+</body>
+</html>
