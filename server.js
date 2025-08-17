@@ -7,7 +7,7 @@ const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
-const PORT = process.env.PORT || 4321;
+const PORT = process.env.PORT || 1565;
 
 app.use(cors());
 app.use(express.json());

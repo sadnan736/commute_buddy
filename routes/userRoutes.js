@@ -202,19 +202,6 @@ router.put("/:id/preferred-regions", authenticate, async (req, res) => {
   }
 });
 
-/*
-# Admin routes have been moved to routes/adminRoutes.js
-# This includes:
-# - User role management: PUT /api/admin/users/:id/role
-# - Verification management: GET/PUT /api/admin/verification/*
 
-# How to create the first admin:
-1. Open MongoDB Atlas → Collections → users.
-2. Edit the trusted user document.
-3. Add/modify: "role": "admin"
-
-Note: New sign-ups automatically get role: "user"
-Admin endpoints are now at /api/admin/*
-*/
 
 module.exports = router;

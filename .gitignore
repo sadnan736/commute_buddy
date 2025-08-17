@@ -4,6 +4,8 @@
 # SpecStory directory
 .specstory/
 
+#Cursor directory 
+.cursor/
 # Node.js dependencies
 node_modules/
 

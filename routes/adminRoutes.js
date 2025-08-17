@@ -112,6 +112,16 @@ router.put("/verification/:userId/reject", authenticate, authorize("admin"), asy
   }
 });
 
+// GET /api/admin/users - Get all users
+router.get("/users", authenticate, authorize("admin"), async (req, res) => {
+  try {
+    const users = await User.find({}).select("-password");
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 // PUT /api/admin/users/:id/role - Admin-only endpoint to change user roles (moved from userRoutes)
 router.put("/users/:id/role", authenticate, authorize("admin"), async (req, res) => {
   try {
