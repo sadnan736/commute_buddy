@@ -22,12 +22,12 @@ export default function Maps() {
                   <div className="bud">Buddy</div>
               </div>
               <ul>
-                  <li className="h"><a href="index.html">Home</a></li>
+                  <li className="h"><a href="profile.html">Home</a></li>
                   <li className="about"><a href="#">About</a></li>
                   <li className="help"><a href="#">Help</a></li>
                   <li className="blog"><a href="#">Blog</a></li>
                   <li><a href="dashboard.html">Dashboard</a></li>
-                  <li><a href="#" id="logoutBtn">Logout</a></li>
+                  <li><a id="logoutBtn">Logout</a></li>
               </ul>
           </div>
       <div className="sidebar">
@@ -60,7 +60,32 @@ export default function Maps() {
         >
           Save Location
         </button>
+        <div className="dropup-container">
+        <button
+          className="delete-btn"
+          id="deleteLocationBtn"
+          style={{ display: "none" }}
+        >
+          Delete Location
+        </button>
+        <div className="dropup-menu" id="dropupMenu">
+
+        </div>
+        </div>
       </div>
+
+
+      <div id="deleteOverlay" className="overlay" style={{ display: "none" }}>
+        <div className="overlay-content">
+          <span className="close-btn" id="closeDelOverlay">
+            &times;
+          </span>
+          <h2>Delete Saved Location</h2>
+          <input type="text" id="locationDelInput" placeholder="Enter location name" />
+          <button id="confirmDelete">Delete</button>
+        </div>
+      </div>
+      
 
       <div id="locationOverlay" className="overlay" style={{ display: "none" }}>
         <div className="overlay-content">

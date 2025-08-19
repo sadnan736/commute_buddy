@@ -155,12 +155,18 @@ li.blog {
 }
 .saved-section {
   margin-top: 20px;
-}
-.save-btn {
+.dropup-container {
   position: absolute;
   bottom: 20px;
   right: 20px;
-  background-color: #3b82f6;
+}
+
+}
+.delete-btn{
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background-color: #f6603b;
   color: white;
   padding: 10px 15px;
   border: none;
@@ -168,6 +174,19 @@ li.blog {
   cursor: pointer;
   font-size: 14px;
   z-index: 1000;
+}
+.save-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 160px;
+  background-color: #3b82f6;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 1001;
 }
 /* Overlay background */
 .overlay {
@@ -216,6 +235,15 @@ li.blog {
 /* Save button */
 .overlay-content button {
   background-color: #3b82f6;
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#confirmDelete{
+background-color: #f6603b;
   color: white;
   padding: 8px 15px;
   border: none;

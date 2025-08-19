@@ -14,7 +14,7 @@ console.log(token);
 console.log(userId);
 
 if (!token || !userId) {
-  console.log("Token or userId missing", token, userId);
+  alert("Token or userId missing", token, userId);
   window.location.href = "login.html";
 }
 
@@ -54,6 +54,26 @@ async function save_place(locationName, coords) {
   }
 }
 
+async function deleteSavedPlace(locationName) {
+  if (!locationName) return;
+
+  try {
+    const res = await axios.delete(
+      `http://localhost:1477/api/map/${userId}/saved-places`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { locationName } // axios deletes need `data` for body
+      }
+    );
+
+    console.log(res.data.message);
+  } catch (err) {
+    console.error("Error deleting location:", err.response?.data || err.message);
+  }
+}
+
+
+
 let mapInstance = null;
 let currentMarker = null;
 
@@ -67,12 +87,17 @@ export default function initMap() {
     mapInstance = null;
   }
 
+  const deleteBtn = document.getElementById("deleteLocationBtn");
   const mapEl = document.getElementById("map");
   const saveBtn = document.getElementById("saveLocationBtn");
+  const overlay_del = document.getElementById("deleteOverlay")
   const overlay = document.getElementById("locationOverlay");
+  const closeOverlayDelBtn = document.getElementById("closeDelOverlay")
   const closeOverlayBtn = document.getElementById("closeOverlay");
   const confirmSaveBtn = document.getElementById("confirmSave");
+  const confirmDelBtn = document.getElementById("confirmDelete");
   const locationInput = document.getElementById("locationInput");
+  const locationDelInput = document.getElementById("locationDelInput");
   const savedPlacesListEl = document.getElementById("savedPlacesList");
 
   if (!mapEl) {
@@ -101,6 +126,10 @@ export default function initMap() {
   let selectedCoords = null;
 fetch_saved_places().then(() => {
   updateSavedPlacesUI();
+
+  if (saved_places){
+    deleteBtn.style.display = "block";
+  }
 });
 
   function onMapClick(e) {
@@ -119,6 +148,22 @@ fetch_saved_places().then(() => {
 
   mapInstance.on("click", onMapClick);
 
+
+function onDelBtnClick(){
+  if (!saved_places) {
+    deleteBtn.style.display = "none";
+    return
+  }
+  if (overlay_del) overlay_del.style.display = "flex";
+  if (locationDelInput) locationDelInput.focus();
+  
+
+
+}
+
+function onCloseDelOverlay(){
+  if (overlay_del) overlay_del.style.display = "none";
+}
   function onSaveBtnClick() {
     if (overlay) overlay.style.display = "flex";
     if (locationInput) locationInput.focus();
@@ -126,6 +171,30 @@ fetch_saved_places().then(() => {
 
   function onCloseOverlay() {
     if (overlay) overlay.style.display = "none";
+  }
+
+  function onConfirmDel(){
+    const nameEl = locationDelInput;
+    if (!nameEl) return;
+
+    const locationName = nameEl.value.trim();
+
+    if (!locationName) {
+      window.alert("Please enter a location name.");
+      return;
+    }
+
+    if (locationName in saved_places) {
+      deleteSavedPlace(locationName).then(() => {
+          delete saved_places[locationName]
+          updateSavedPlacesUI();
+          if (overlay_del) overlay_del.style.display = "none";
+
+      });
+
+    } else {
+      alert("Does not Exist")
+    }
   }
 
   function onConfirmSave() {
@@ -191,12 +260,16 @@ fetch_saved_places().then(() => {
   if (saveBtn) saveBtn.addEventListener("click", onSaveBtnClick);
   if (closeOverlayBtn)
     closeOverlayBtn.addEventListener("click", onCloseOverlay);
+  if (closeOverlayDelBtn)
+    closeOverlayDelBtn.addEventListener("click", onCloseDelOverlay);
   if (confirmSaveBtn) confirmSaveBtn.addEventListener("click", onConfirmSave);
+  if (confirmDelBtn) confirmDelBtn.addEventListener("click", onConfirmDel);
+  if (deleteBtn) deleteBtn.addEventListener("click", onDelBtnClick);
 
   updateSavedPlacesUI();
   document.getElementById("logoutBtn").addEventListener("click", () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
-    window.location.href = "index.html";
+    window.location.href = "login.html";
   });
 }
