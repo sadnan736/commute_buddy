@@ -10,8 +10,6 @@ L.Icon.Default.mergeOptions({
 
 const token = localStorage.getItem("token");
 const userId = localStorage.getItem("userId");
-console.log(token);
-console.log(userId);
 
 if (!token || !userId) {
   alert("Token or userId missing", token, userId);
@@ -27,7 +25,6 @@ async function fetch_saved_places() {
       `http://localhost:1477/api/map/${userId}/saved-places`,
       axiosConfig
     );
-    console.log(res.data)
     saved_places = res.data;
   } catch (err) {
     console.error("Fetch profile error:", err.response?.data);
@@ -48,7 +45,6 @@ async function save_place(locationName, coords) {
       axiosConfig
     );
 
-    console.log("Updated saved places:", res.data.savedPlaces);
   } catch (err) {
     console.error("Error saving place:", err.response?.data || err.message);
   }
@@ -66,7 +62,6 @@ async function deleteSavedPlace(locationName) {
       }
     );
 
-    console.log(res.data.message);
   } catch (err) {
     console.error("Error deleting location:", err.response?.data || err.message);
   }
@@ -127,7 +122,8 @@ export default function initMap() {
 fetch_saved_places().then(() => {
   updateSavedPlacesUI();
 
-  if (saved_places){
+  if (Object.keys(saved_places).length > 0) {
+    console.log(saved_places)
     deleteBtn.style.display = "block";
   }
 });
@@ -150,7 +146,7 @@ fetch_saved_places().then(() => {
 
 
 function onDelBtnClick(){
-  if (!saved_places) {
+  if (Object.keys(saved_places).length <= 0)  {
     deleteBtn.style.display = "none";
     return
   }
@@ -188,12 +184,15 @@ function onCloseDelOverlay(){
       deleteSavedPlace(locationName).then(() => {
           delete saved_places[locationName]
           updateSavedPlacesUI();
+          nameEl.value = "";
+          if (Object.keys(saved_places).length <= 0)  deleteBtn.style.display = "none";
           if (overlay_del) overlay_del.style.display = "none";
+
 
       });
 
     } else {
-      alert("Does not Exist")
+      alert("Does not Exist in Saved Places")
     }
   }
 
@@ -215,7 +214,6 @@ function onCloseDelOverlay(){
       lat: selectedCoords.lat,
       lng: selectedCoords.lng,
     };
-    console.log(saved_places);
     save_place(locationName, selectedCoords);
 
     updateSavedPlacesUI();
@@ -227,10 +225,9 @@ function onCloseDelOverlay(){
   }
 
   function updateSavedPlacesUI() {
-    console.log()
     if (!savedPlacesListEl) return;
     savedPlacesListEl.innerHTML = "";
-
+    deleteBtn.style.display = "block";
     for (const placeName in saved_places) {
       if (!Object.prototype.hasOwnProperty.call(saved_places, placeName))
         continue;
