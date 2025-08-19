@@ -12,7 +12,87 @@ html, body, #root {
         display: flex;
         height: 100vh;
     }
+.navi{
+    display: flex;
+    align-items: center;
+    height: 84px;
+    width: 100%;
+    
+    position: relative;
+    background-color: #111111ad;
+    position: fixed;
+    z-index: 1000;
+    justify-content: space-between;
+}
+
+
+
+
+.navi ul{
+    display: flex;
+    list-style: none;
+    margin-left: 0px;
+    z-index: 1000;
+    height: 84px;
+    
+    align-items: center;
+}
+
+
+.navi ul li{
+    margin: 0 20px;
+    font-size: 20px;
+    font-weight: 500;
+    color: rgb(110, 35, 214);
+}
+
+
+
+
+ul li a{
+    font-size: 25px;
+    font-weight: 300;
+    color: #ffffff;
+    text-decoration: none;
+    text-shadow:white 0px 0px 15px;
+}
+
+li.h{
+    padding-right: 50px;
+}
+
+
+li.about{
+    padding-right: 50px;
+}
+
+li.help{
+    padding-right: 50px;
+}
+
+li.blog{
+    padding-right: 250px;
+}
+.logo {
+    display: flex;
+    margin-left: 30px;
+    font-weight: bold;  
+    padding-left: 25px;
+}
+.com {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.bud {
+    color: #fe1f1f;
+    font-size: 30px;
+    font-weight: 600;
+    
+}
     .sidebar {
+        margin-top: 5rem;
         width: 250px;
         padding: 20px;
         background-color: #111;

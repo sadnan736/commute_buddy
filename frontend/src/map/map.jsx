@@ -16,6 +16,20 @@ export default function Maps() {
   return (
     <>
     <div className="map-page">
+          <div class="navi">
+              <div class="logo">
+                  <div class="com">Commute</div>
+                  <div class="bud">Buddy</div>
+              </div>
+              <ul>
+                  <li class="h"><a href="index.html">Home</a></li>
+                  <li class="about"><a href="#">About</a></li>
+                  <li class="help"><a href="#">Help</a></li>
+                  <li class="blog"><a href="#">Blog</a></li>
+                  <li><a href="dashboard.html">Dashboard</a></li>
+                  <li><a href="#" id="logoutBtn">Logout</a></li>
+              </ul>
+          </div>
       <div className="sidebar">
         <div>
           <h3>Filters</h3>
