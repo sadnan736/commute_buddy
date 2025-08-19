@@ -1,6 +1,6 @@
 import L from "leaflet";
+import axios from "axios";
 delete L.Icon.Default.prototype._getIconUrl;
-
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "images/marker-icon-2x.png",
@@ -8,23 +8,64 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "/images/marker-shadow.png",
 });
 
+const token = localStorage.getItem("token");
+const userId = localStorage.getItem("userId");
+console.log(token);
+console.log(userId);
+
+if (!token || !userId) {
+  console.log("Token or userId missing", token, userId);
+  window.location.href = "login.html";
+}
+
+const axiosConfig = { headers: { Authorization: `Bearer ${token}` } };
+
+let saved_places = {};
+async function fetch_saved_places() {
+  try {
+    const res = await axios.get(
+      `http://localhost:1477/api/map/${userId}/saved-places`,
+      axiosConfig
+    );
+    console.log(res.data)
+    saved_places = res.data;
+  } catch (err) {
+    console.error("Fetch profile error:", err.response?.data);
+  }
+}
+
+
+
+async function save_place(locationName, coords) {
+  try {
+    const res = await axios.post(
+      `http://localhost:1477/api/map/${userId}/saved-places`,
+      {
+        locationName: locationName,
+        lat: coords.lat,
+        lng: coords.lng,
+      },
+      axiosConfig
+    );
+
+    console.log("Updated saved places:", res.data.savedPlaces);
+  } catch (err) {
+    console.error("Error saving place:", err.response?.data || err.message);
+  }
+}
 
 let mapInstance = null;
 let currentMarker = null;
 
-let saved_places = {
-  "Place Name": { lat: 23.81, lng: 90.41 },
-};
+
 
 export default function initMap() {
   if (mapInstance) {
     try {
       mapInstance.remove();
-    } catch (e) {
-    }
+    } catch (e) {}
     mapInstance = null;
   }
-
 
   const mapEl = document.getElementById("map");
   const saveBtn = document.getElementById("saveLocationBtn");
@@ -44,7 +85,6 @@ export default function initMap() {
     [23.92, 90.52],
   ];
 
-
   mapInstance = L.map(mapEl, {
     center: [23.8103, 90.4125],
     zoom: 12,
@@ -58,20 +98,18 @@ export default function initMap() {
     attribution: "&copy; OpenStreetMap contributors",
   }).addTo(mapInstance);
 
-
   let selectedCoords = null;
-
+fetch_saved_places().then(() => {
+  updateSavedPlacesUI();
+});
 
   function onMapClick(e) {
     selectedCoords = e.latlng;
 
-
     if (currentMarker) {
       try {
         mapInstance.removeLayer(currentMarker);
-      } catch (err) {
-
-      }
+      } catch (err) {}
     }
 
     currentMarker = L.marker(selectedCoords).addTo(mapInstance);
@@ -81,17 +119,14 @@ export default function initMap() {
 
   mapInstance.on("click", onMapClick);
 
-
   function onSaveBtnClick() {
     if (overlay) overlay.style.display = "flex";
     if (locationInput) locationInput.focus();
   }
 
-
   function onCloseOverlay() {
     if (overlay) overlay.style.display = "none";
   }
-
 
   function onConfirmSave() {
     const nameEl = locationInput;
@@ -107,27 +142,29 @@ export default function initMap() {
       return;
     }
 
-
-    saved_places[locationName] = { lat: selectedCoords.lat, lng: selectedCoords.lng };
-
+    saved_places[locationName] = {
+      lat: selectedCoords.lat,
+      lng: selectedCoords.lng,
+    };
+    console.log(saved_places);
+    save_place(locationName, selectedCoords);
 
     updateSavedPlacesUI();
-
 
     window.alert("Location saved!");
     onCloseOverlay();
     nameEl.value = "";
     if (saveBtn) saveBtn.style.display = "none";
-
-
   }
 
   function updateSavedPlacesUI() {
+    console.log()
     if (!savedPlacesListEl) return;
     savedPlacesListEl.innerHTML = "";
 
     for (const placeName in saved_places) {
-      if (!Object.prototype.hasOwnProperty.call(saved_places, placeName)) continue;
+      if (!Object.prototype.hasOwnProperty.call(saved_places, placeName))
+        continue;
       const coords = saved_places[placeName];
 
       const btn = document.createElement("div");
@@ -136,14 +173,11 @@ export default function initMap() {
       btn.style.cursor = "pointer";
 
       btn.addEventListener("click", function () {
-
         if (currentMarker) {
-            try {
-                mapInstance.removeLayer(currentMarker);
-            } catch (err) {
-
-            }
-            }
+          try {
+            mapInstance.removeLayer(currentMarker);
+          } catch (err) {}
+        }
 
         currentMarker = L.marker([coords.lat, coords.lng]).addTo(mapInstance);
         currentMarker.bindPopup(placeName).openPopup();
@@ -154,34 +188,15 @@ export default function initMap() {
     }
   }
 
-
   if (saveBtn) saveBtn.addEventListener("click", onSaveBtnClick);
-  if (closeOverlayBtn) closeOverlayBtn.addEventListener("click", onCloseOverlay);
+  if (closeOverlayBtn)
+    closeOverlayBtn.addEventListener("click", onCloseOverlay);
   if (confirmSaveBtn) confirmSaveBtn.addEventListener("click", onConfirmSave);
 
   updateSavedPlacesUI();
-
-  return function cleanup() {
-    try {
-
-      if (mapInstance) {
-        mapInstance.off("click", onMapClick);
-      }
-
-      if (saveBtn) saveBtn.removeEventListener("click", onSaveBtnClick);
-      if (closeOverlayBtn) closeOverlayBtn.removeEventListener("click", onCloseOverlay);
-      if (confirmSaveBtn) confirmSaveBtn.removeEventListener("click", onConfirmSave);
-
-
-      if (mapInstance) {
-        mapInstance.remove();
-        mapInstance = null;
-      }
-
-
-      if (savedPlacesListEl) savedPlacesListEl.innerHTML = "";
-    } catch (err) {
-
-    }
-  };
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    window.location.href = "index.html";
+  });
 }

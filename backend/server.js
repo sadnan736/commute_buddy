@@ -5,6 +5,7 @@ require("dotenv").config();
 
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const map_routes = require("./routes/map_routes");
 
 const app = express();
 const PORT = process.env.PORT || 4321;
@@ -18,6 +19,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/map", map_routes);
 
 mongoose
   .connect(process.env.MONGO_URI)

@@ -1,212 +1,224 @@
-html, body, #root {
+html,
+body,
+#root {
   margin: 0;
   padding: 0;
   height: 100%;
   width: 100%;
+  overflow: hidden;
 }
 .map-page {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background-color: #111;
-        color: white;
-        display: flex;
-        height: 100vh;
-    }
-.navi{
-    display: flex;
-    align-items: center;
-    height: 84px;
-    width: 100%;
-    
-    position: relative;
-    background-color: #111111ad;
-    position: fixed;
-    z-index: 1000;
-    justify-content: space-between;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #111;
+  color: white;
+  display: flex;
+  height: 100vh;
+}
+.navi {
+  display: flex;
+  align-items: center;
+  height: 84px;
+  width: 100%;
+
+  position: relative;
+  background-color: #111111ad;
+  position: fixed;
+  z-index: 1000;
+  justify-content: space-between;
 }
 
+.navi ul {
+  display: flex;
+  list-style: none;
+  margin-left: 0px;
+  z-index: 1000;
+  height: 84px;
 
-
-
-.navi ul{
-    display: flex;
-    list-style: none;
-    margin-left: 0px;
-    z-index: 1000;
-    height: 84px;
-    
-    align-items: center;
+  align-items: center;
 }
 
-
-.navi ul li{
-    margin: 0 20px;
-    font-size: 20px;
-    font-weight: 500;
-    color: rgb(110, 35, 214);
+.navi ul li {
+  margin: 0 20px;
+  font-size: 20px;
+  font-weight: 500;
+  color: rgb(110, 35, 214);
 }
 
-
-
-
-ul li a{
-    font-size: 25px;
-    font-weight: 300;
-    color: #ffffff;
-    text-decoration: none;
-    text-shadow:white 0px 0px 15px;
+ul li a {
+  font-size: 25px;
+  font-weight: 300;
+  color: #ffffff;
+  text-decoration: none;
+  text-shadow: white 0px 0px 15px;
 }
 
-li.h{
-    padding-right: 50px;
+li.h {
+  padding-right: 50px;
 }
 
-
-li.about{
-    padding-right: 50px;
+li.about {
+  padding-right: 50px;
 }
 
-li.help{
-    padding-right: 50px;
+li.help {
+  padding-right: 50px;
 }
 
-li.blog{
-    padding-right: 250px;
+li.blog {
+  padding-right: 250px;
 }
 .logo {
-    display: flex;
-    margin-left: 30px;
-    font-weight: bold;  
-    padding-left: 25px;
+  display: flex;
+  margin-left: 30px;
+  font-weight: bold;
+  padding-left: 25px;
 }
 .com {
-    color: #ffffff;
-    font-size: 20px;
-    font-weight: 600;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .bud {
-    color: #fe1f1f;
-    font-size: 30px;
-    font-weight: 600;
-    
+  color: #fe1f1f;
+  font-size: 30px;
+  font-weight: 600;
 }
-    .sidebar {
-        margin-top: 5rem;
-        width: 250px;
-        padding: 20px;
-        background-color: #111;
-        display: flex;
-        flex-direction: column;
-    }
-    .sidebar h3 {
-        margin-top: 0;
-    }
-    .filter-btn {
-        background-color: #222;
-        border: none;
-        padding: 8px 12px;
-        margin: 5px 0;
-        border-radius: 5px;
-        color: white;
-        cursor: pointer;
-        text-align: center;
-        font-size: 0.9rem;
-    }
-    .filter-btn:hover {
-        background-color: #333;
-    }
-    .sort-section {
-        margin-top: 20px;
-    }
-    .sort-option {
-        background-color: #222;
-        border: none;
-        padding: 8px 12px;
-        margin: 5px 0;
-        border-radius: 5px;
-        color: white;
-        cursor: pointer;
-        text-align: center;
-        font-size: 0.9rem;
-    }
-    .sort-option:hover {
-        background-color: #333;
-    }
-    .map-container {
-        flex: 1;
-        position: relative;
-    }
-    #map {
-        height: 100%;
-        width: 100%;
-        
-    }
-    .saved-section {
-        margin-top: 20px;
-    }
-    .save-btn {
-        
-        position: absolute;
-        bottom: 20px;
-        right: 20px;
-        background-color: #3b82f6;
-        color: white;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 14px;
-        z-index: 1000;
-    }
-        /* Overlay background */
-    .overlay {
-        display: none; /* hidden by default */
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.6);
-        z-index: 2000;
-        justify-content: center;
-        align-items: center;
-    }
+.sidebar {
+  margin-top: 5rem;
+  width: 250px;
+  padding: 20px;
+  background-color: #111;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 5rem - 40px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
 
-    /* Overlay content box */
-    .overlay-content {
-        background: #222;
-        padding: 20px;
-        border-radius: 8px;
-        width: 300px;
-        position: relative;
-        color: white;
-        text-align: center;
-    }
+}
+.sidebar::-webkit-scrollbar {
+    width: 8px;
+}
 
-    /* Close button */
-    .close-btn {
-        position: absolute;
-        right: 10px;
-        top: 10px;
-        font-size: 20px;
-        cursor: pointer;
-    }
+.sidebar::-webkit-scrollbar-track {
+    background: #111;
+}
 
-    /* Input styling */
-    .overlay-content input {
-        width: 90%;
-        padding: 8px;
-        margin-top: 10px;
-        margin-bottom: 15px;
-        border-radius: 5px;
-        border: none;
-    }
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 6px;
+}
 
-    /* Save button */
-    .overlay-content button {
-        background-color: #3b82f6;
-        color: white;
-        padding: 8px 15px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
+.sidebar h3 {
+  margin-top: 0;
+}
+.filter-btn {
+  background-color: #222;
+  border: none;
+  padding: 8px 12px;
+  margin: 5px 0;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  font-size: 0.9rem;
+}
+.filter-btn:hover {
+  background-color: #333;
+}
+.sort-section {
+  margin-top: 20px;
+}
+.sort-option {
+  background-color: #222;
+  border: none;
+  padding: 8px 12px;
+  margin: 5px 0;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  font-size: 0.9rem;
+}
+.sort-option:hover {
+  background-color: #333;
+}
+.map-container {
+  flex: 1;
+  position: relative;
+}
+#map {
+  height: 100%;
+  width: 100%;
+}
+.saved-section {
+  margin-top: 20px;
+}
+.save-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background-color: #3b82f6;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 1000;
+}
+/* Overlay background */
+.overlay {
+  display: none; /* hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Overlay content box */
+.overlay-content {
+  background: #222;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  position: relative;
+  color: white;
+  text-align: center;
+}
+
+/* Close button */
+.close-btn {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Input styling */
+.overlay-content input {
+  width: 90%;
+  padding: 8px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: none;
+}
+
+/* Save button */
+.overlay-content button {
+  background-color: #3b82f6;
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
