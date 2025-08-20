@@ -8,15 +8,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "/images/marker-shadow.png",
 });
 
-const token = localStorage.getItem("token");
-const userId = localStorage.getItem("userId");
 
-if (!token || !userId) {
-  alert("Token or userId missing", token, userId);
-  window.location.href = "login.html";
-}
-
-const axiosConfig = { headers: { Authorization: `Bearer ${token}` } };
 
 let saved_places = {};
 async function fetch_saved_places() {
@@ -75,6 +67,16 @@ let currentMarker = null;
 
 
 export default function initMap() {
+
+const token = localStorage.getItem("token");
+const userId = localStorage.getItem("userId");
+
+if (!token || !userId) {
+  alert("Token or userId missing", token, userId);
+  window.location.href = "login.html";
+}
+
+const axiosConfig = { headers: { Authorization: `Bearer ${token}` } };
   if (mapInstance) {
     try {
       mapInstance.remove();
@@ -85,6 +87,7 @@ export default function initMap() {
   const deleteBtn = document.getElementById("deleteLocationBtn");
   const mapEl = document.getElementById("map");
   const saveBtn = document.getElementById("saveLocationBtn");
+  const reportBtn = document.getElementById("reportIndidentBtn");
   const overlay_del = document.getElementById("deleteOverlay")
   const overlay = document.getElementById("locationOverlay");
   const closeOverlayDelBtn = document.getElementById("closeDelOverlay")
@@ -140,6 +143,7 @@ fetch_saved_places().then(() => {
     currentMarker = L.marker(selectedCoords).addTo(mapInstance);
 
     if (saveBtn) saveBtn.style.display = "block";
+    if (reportBtn) reportBtn.style.display = "block";
   }
 
   mapInstance.on("click", onMapClick);
@@ -222,12 +226,14 @@ function onCloseDelOverlay(){
     onCloseOverlay();
     nameEl.value = "";
     if (saveBtn) saveBtn.style.display = "none";
+    if (reportBtn) reportBtn.style.display = "none";
   }
 
   function updateSavedPlacesUI() {
     if (!savedPlacesListEl) return;
     savedPlacesListEl.innerHTML = "";
-    deleteBtn.style.display = "block";
+    
+    if (Object.keys(saved_places).length > 0)  deleteBtn.style.display = "block";
     for (const placeName in saved_places) {
       if (!Object.prototype.hasOwnProperty.call(saved_places, placeName))
         continue;

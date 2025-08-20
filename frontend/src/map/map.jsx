@@ -54,13 +54,19 @@ export default function Maps() {
       <div className="map-container">
         <div id="map" style={{ height: "100%", minHeight: "400px" }}></div>
         <button
+          className="report-btn"
+          id="reportIndidentBtn"
+          style={{ display: "none" }}
+        >
+          Report Incident
+        </button>
+        <button
           className="save-btn"
           id="saveLocationBtn"
           style={{ display: "none" }}
         >
           Save Location
         </button>
-        <div className="dropup-container">
         <button
           className="delete-btn"
           id="deleteLocationBtn"
@@ -68,10 +74,6 @@ export default function Maps() {
         >
           Delete Location
         </button>
-        <div className="dropup-menu" id="dropupMenu">
-
-        </div>
-        </div>
       </div>
 
 
@@ -85,7 +87,11 @@ export default function Maps() {
           <button id="confirmDelete">Delete</button>
         </div>
       </div>
+      {/* end */}
+
       
+
+      {/* end */}
 
       <div id="locationOverlay" className="overlay" style={{ display: "none" }}>
         <div className="overlay-content">

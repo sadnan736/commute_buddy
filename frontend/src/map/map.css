@@ -155,11 +155,7 @@ li.blog {
 }
 .saved-section {
   margin-top: 20px;
-.dropup-container {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-}
+
 
 }
 .delete-btn{
@@ -175,20 +171,43 @@ li.blog {
   font-size: 14px;
   z-index: 1000;
 }
+.delete-btn:hover{
+  background-color: #a54027;
+}
 .save-btn {
   position: absolute;
-  bottom: 20px;
-  right: 160px;
+  bottom: 60px;
+  right: 20px;
   background-color: #3b82f6;
   color: white;
-  padding: 10px 15px;
+  padding: 11px 19px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
   z-index: 1001;
 }
-/* Overlay background */
+.save-btn:hover {
+  background-color: #2f66be;
+}
+
+.report-btn {
+  position: absolute;
+  top: 6rem;
+  right: 20px;
+  background-color: #3b82f6;
+  color: white;
+  padding: 20px 25px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 1001;
+}
+.report-btn:hover {
+  background-color: #2f66be;
+}
+
 .overlay {
   display: none; /* hidden by default */
   position: fixed;
