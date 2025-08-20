@@ -3,8 +3,8 @@ body,
 #root {
   margin: 0;
   padding: 0;
-  height: 100%;
-  width: 100%;
+  height: 120%;
+  /* width: 100%; */
   overflow: hidden;
 }
 .map-page {
@@ -268,4 +268,41 @@ background-color: #f6603b;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+}
+.upload-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+.upload-btn {
+  background-color: #3b82f6;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border: none;
+}
+
+.upload-btn:hover {
+  background-color: #2f66be;
+}
+
+.upload-filename {
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.desc-input {
+  width: 95%;
+  padding: 8px;
+  margin-top: 6px;
+  margin-bottom: 12px;
+  border-radius: 5px;
+  border: none;
+  resize: vertical;
+  min-height: 60px;
+  font-family: inherit;
 }

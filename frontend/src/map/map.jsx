@@ -89,7 +89,53 @@ export default function Maps() {
       </div>
       {/* end */}
 
-      
+      {/* REPORT OVERLAY */}
+      <div id="reportOverlay" className="overlay" style={{ display: "none" }}>
+        <div className="overlay-content">
+          <span className="close-btn" id="closeReportOverlay">&times;</span>
+          <h2>Report a New Incident</h2>
+
+          <label style={{display:"block", textAlign:"left"}}>Type</label>
+          <select id="reportType" style={{ width: "95%", padding: 8, marginTop: 6, marginBottom: 12, borderRadius: 5, border: "none", background:"#333", color:"#fff" }}>
+            <option value="">Select type</option>
+            <option value="accident">Accident</option>
+            <option value="congestion">Congestion</option>
+            <option value="event">Event</option>
+            <option value="blockade">Blockade</option>
+            <option value="flood">Flood</option>
+          </select>
+
+          <label style={{display:"block", textAlign:"left"}}>Severity</label>
+          <select id="reportSeverity" style={{ width: "95%", padding: 8, marginTop: 6, marginBottom: 12, borderRadius: 5, border: "none", background:"#333", color:"#fff" }}>
+            <option value="">Select severity</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+
+          <label style={{display:"block", textAlign:"left"}}>Validity (minutes)</label>
+          <input type="number" id="reportValidity" min="1" placeholder="e.g. 30" />
+          <label style={{display:"block", textAlign:"left"}}>Description</label>
+          <textarea id="reportDescription" className="desc-input" placeholder="Enter a short description"></textarea>
+
+         <label style={{display:"block", textAlign:"left"}}>Upload Photo (optional)</label>
+          <div className="upload-wrapper">
+          <label htmlFor="reportPhotoFile" className="upload-btn">Upload Photo</label>
+          <input type="file" id="reportPhotoFile" accept=".jpg,.jpeg,.png" style={{ display: "none" }} />
+          <span id="uploadFileName" className="upload-filename">No file chosen</span>
+        </div>
+
+
+
+          <div style={{fontSize:12, opacity:0.8, marginTop:6, marginBottom:12}}>
+            <span>Lat: <span id="reportLat">–</span></span> &nbsp;|&nbsp;
+            <span>Lng: <span id="reportLng">–</span></span>
+          </div>
+
+          <button id="confirmReport">Submit Report</button>
+        </div>
+      </div>
+
 
       {/* end */}
 

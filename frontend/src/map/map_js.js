@@ -8,6 +8,17 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "/images/marker-shadow.png",
 });
 
+let reports = [];
+let markers = [];
+
+const token = localStorage.getItem("token");
+const userId = localStorage.getItem("userId");
+
+if (!token || !userId) {
+  alert("Token or userId missing", token, userId);
+  window.location.href = "login.html";
+}
+
 
 const axiosConfig = { headers: { Authorization: `Bearer ${token}` } };
 
@@ -24,6 +35,27 @@ async function fetch_saved_places() {
   }
 }
 
+async function create_report({ type, severity, validity, coords, description }) {
+  try {
+    const res = await axios.post(
+      "http://localhost:1477/api/reports",
+      {
+        type,
+        severity,
+        validity: Number(validity),
+        reportedBy: userId,
+        location: { lat: coords.lat, lng: coords.lng },
+        description,
+        // photoUrl: undefined
+      },
+      axiosConfig
+    );
+    return res.data; // the created report document
+  } catch (err) {
+    console.error("Error creating report:", err.response?.data || err.message);
+    throw err;
+  }
+}
 
 
 async function save_place(locationName, coords) {
@@ -69,20 +101,30 @@ let currentMarker = null;
 
 export default function initMap() {
 
-const token = localStorage.getItem("token");
-const userId = localStorage.getItem("userId");
-
-if (!token || !userId) {
-  alert("Token or userId missing", token, userId);
-  window.location.href = "login.html";
-}
-
   if (mapInstance) {
     try {
       mapInstance.remove();
     } catch (e) {}
     mapInstance = null;
   }
+
+  // for reporting
+  const reportDescriptionEl = document.getElementById("reportDescription");
+
+  const reportOverlay = document.getElementById("reportOverlay");
+  const closeReportOverlayBtn = document.getElementById("closeReportOverlay");
+  const confirmReportBtn = document.getElementById("confirmReport");
+  const reportTypeEl = document.getElementById("reportType");
+  const reportSeverityEl = document.getElementById("reportSeverity");
+  const reportValidityEl = document.getElementById("reportValidity");
+  const reportPhotoFileEl = document.getElementById("reportPhotoFile");
+  const uploadFileNameEl = document.getElementById("uploadFileName");
+
+  const reportLatEl = document.getElementById("reportLat");
+  const reportLngEl = document.getElementById("reportLng");
+
+  // report end
+
 
   const deleteBtn = document.getElementById("deleteLocationBtn");
   const mapEl = document.getElementById("map");
@@ -97,6 +139,8 @@ if (!token || !userId) {
   const locationInput = document.getElementById("locationInput");
   const locationDelInput = document.getElementById("locationDelInput");
   const savedPlacesListEl = document.getElementById("savedPlacesList");
+
+
 
   if (!mapEl) {
     console.error("Map element (#map) not found in DOM.");
@@ -121,6 +165,10 @@ if (!token || !userId) {
     attribution: "&copy; OpenStreetMap contributors",
   }).addTo(mapInstance);
 
+
+  mapInstance.doubleClickZoom.disable();
+
+  
   let selectedCoords = null;
 fetch_saved_places().then(() => {
   updateSavedPlacesUI();
@@ -259,6 +307,131 @@ function onCloseDelOverlay(){
       savedPlacesListEl.appendChild(btn);
     }
   }
+
+
+  // for reporting
+
+  function onPhotoFileChange(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const name = file.name.toLowerCase();
+
+  if (!(name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png"))) {
+    alert("Only JPG and PNG files are allowed.");
+    e.target.value = ""; // reset the input
+    if (uploadFileNameEl) uploadFileNameEl.textContent = "No file chosen";
+    return;
+  }
+
+  if (uploadFileNameEl) uploadFileNameEl.textContent = file.name;
+}
+
+
+  function onReportBtnClick() {
+  if (!selectedCoords) {
+    alert("Select a location on the map first.");
+    return;
+  }
+  if (reportLatEl) reportLatEl.textContent = selectedCoords.lat.toFixed(6);
+  if (reportLngEl) reportLngEl.textContent = selectedCoords.lng.toFixed(6);
+
+  // reset form
+  if (reportDescriptionEl) reportDescriptionEl.value = "";
+  if (reportTypeEl) reportTypeEl.value = "";
+  if (reportSeverityEl) reportSeverityEl.value = "";
+  if (reportValidityEl) reportValidityEl.value = "";
+  if (reportPhotoFileEl) reportPhotoFileEl.value = "";
+  if (uploadFileNameEl) uploadFileNameEl.textContent = "No file chosen";
+
+
+  if (reportOverlay) reportOverlay.style.display = "flex";
+}
+
+function onCloseReportOverlay() {
+  if (reportOverlay) reportOverlay.style.display = "none";
+}
+
+function onConfirmReport() {
+  if (!selectedCoords) {
+    alert("No location selected.");
+    return;
+  }
+  const type = reportTypeEl?.value.trim();
+  const severity = reportSeverityEl?.value.trim();
+  const validity = Number(reportValidityEl?.value);
+  const photoFile = reportPhotoFileEl?.files[0] || undefined;
+  const description = reportDescriptionEl?.value.trim();
+
+
+  if (photoFile && !["image/jpeg", "image/png"].includes(photoFile.type)) {
+  alert("Only JPG and PNG files are allowed.");
+  reportPhotoFileEl.value = ""; // reset file input
+  uploadFileNameEl.textContent = "No file chosen";
+  return;
+}
+
+
+  if (!type || !severity || !validity || validity < 1 || !description) {
+    alert("Type, Severity, Description, and Validity (>=1) are required.");
+    return;
+  }
+
+  // For now just log the result
+  console.log("Report ready:", {
+    type,
+    severity,
+    validity,
+    reportedBy: userId,
+    location: { lat: selectedCoords.lat, lng: selectedCoords.lng },description,
+  });
+create_report({
+    type,
+    severity,
+    validity,
+    coords: selectedCoords,
+    description,
+  })
+    .then((created) => {
+      reports.push(created)
+      console.log("Created report:", created);
+      alert("Report submitted!");
+      resetReportForm();
+    })
+    .catch(() => {
+      alert("Failed to submit report");
+    });
+
+
+  
+  onCloseReportOverlay();
+
+  // Optionally hide buttons after submit
+  if (reportBtn) reportBtn.style.display = "none";
+  if (saveBtn) saveBtn.style.display = "none";
+}
+
+
+  // reporting
+
+
+  if (reportPhotoFileEl) {
+    reportPhotoFileEl.addEventListener("change", () => {
+      uploadFileNameEl.textContent = reportPhotoFileEl.files[0]?.name || "No file chosen";
+    });
+  }
+  if (reportPhotoFileEl) {
+  reportPhotoFileEl.addEventListener("change", onPhotoFileChange);
+}
+
+
+
+
+  
+
+  if (reportBtn) reportBtn.addEventListener("click", onReportBtnClick);
+  if (closeReportOverlayBtn) closeReportOverlayBtn.addEventListener("click", onCloseReportOverlay);
+  if (confirmReportBtn) confirmReportBtn.addEventListener("click", onConfirmReport);
 
   if (saveBtn) saveBtn.addEventListener("click", onSaveBtnClick);
   if (closeOverlayBtn)
