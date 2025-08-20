@@ -8,8 +8,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "/images/marker-shadow.png",
 });
 
-let reports = [];
-let markers = [];
 
 const token = localStorage.getItem("token");
 const userId = localStorage.getItem("userId");
@@ -55,6 +53,14 @@ async function create_report({ type, severity, validity, coords, description }) 
     console.error("Error creating report:", err.response?.data || err.message);
     throw err;
   }
+}
+
+async function fetchReports(activeOnly = true) {
+  const res = await axios.get(
+    `http://localhost:1477/api/reports?activeOnly=${activeOnly}`,
+    axiosConfig
+  );
+  return res.data;
 }
 
 
@@ -168,7 +174,7 @@ export default function initMap() {
 
   mapInstance.doubleClickZoom.disable();
 
-  
+
   let selectedCoords = null;
 fetch_saved_places().then(() => {
   updateSavedPlacesUI();
@@ -415,10 +421,188 @@ create_report({
   // reporting
 
 
-  if (reportPhotoFileEl) {
-    reportPhotoFileEl.addEventListener("change", () => {
-      uploadFileNameEl.textContent = reportPhotoFileEl.files[0]?.name || "No file chosen";
-    });
+//  for marker
+
+
+function msUntilExpiry(expiresAt) {
+  const t = new Date(expiresAt).getTime();
+  return t - Date.now();
+}
+
+function addReportMarker(report) {
+  // skip expired defensively
+  const msLeft = msUntilExpiry(report.expiresAt);
+  if (msLeft <= 0) return;
+  
+  const { lat, lng } = report.location || {};
+  if (typeof lat !== "number" || typeof lng !== "number") return;
+  
+  const marker = L.marker([lat, lng]).addTo(mapInstance);
+  
+  // Popup content (short summary)
+  const minsLeft = Math.max(1, Math.round(msLeft / 60000));
+  const popupHtml = `
+  <div style="min-width:200px">
+  <strong>${(report.type || "report").toUpperCase()}</strong><br/>
+  Severity: ${report.severity || "-"}<br/>
+  Expires in: ~${minsLeft} min<br/>
+  <em>${report.description || ""}</em>
+  </div>
+  `;
+  marker.bindPopup(popupHtml);
+  
+  // Events
+  marker.on("click", () => {
+    marker.openPopup();
+    openReportId = report._id;
+  });
+  
+  marker.on("dblclick", () => {
+    openReportId = report._id;
+    openReportDetailsOverlay(report); // implement this to show your details overlay
+  });
+  
+  const expireTimerId = setTimeout(() => {
+    removeReportMarker(report._id);
+  }, msLeft);
+  
+  reportMarkers.set(report._id, { marker, expireTimerId });
+}
+
+/** Remove a marker (and its timer) by id */
+function removeReportMarker(reportId) {
+  const rec = reportMarkers.get(reportId);
+  if (!rec) return;
+  try { rec.marker.remove(); } catch {}
+  if (rec.expireTimerId) clearTimeout(rec.expireTimerId);
+  reportMarkers.delete(reportId);
+  if (openReportId === reportId) openReportId = null;
+}
+
+// /** Update popup/timer if a report changed (optional granular updates) */
+// function updateReportMarkerIfNeeded(report) {
+  //   const rec = reportMarkers.get(report._id);
+  //   if (!rec) return false;
+  
+  //   // If expiry changed, reset the timer
+  //   const msLeft = msUntilExpiry(report.expiresAt);
+  //   if (rec.expireTimerId) clearTimeout(rec.expireTimerId);
+  //   if (msLeft <= 0) {
+    //     removeReportMarker(report._id);
+    //     return true;
+    //   } else {
+      //     rec.expireTimerId = setTimeout(() => removeReportMarker(report._id), msLeft);
+      //   }
+      
+      //   // Update popup content if key fields changed
+      //   const minsLeft = Math.max(1, Math.round(msLeft / 60000));
+      //   const newHtml = `
+      //     <div style="min-width:200px">
+      //       <strong>${(report.type || "report").toUpperCase()}</strong><br/>
+      //       Severity: ${report.severity || "-"}<br/>
+      //       Expires in: ~${minsLeft} min<br/>
+      //       <em>${report.description || ""}</em>
+      //     </div>
+      //   `;
+      //   rec.marker.setPopupContent(newHtml);
+      
+      //   return true;
+      // }
+      
+      /** Diff & sync markers to match the latest all_reports */
+      function syncReportMarkersFromAll() {
+        const list = Array.isArray(all_reports) ? all_reports : [];
+        
+        // 1) Build a set of incoming IDs
+        const incomingIds = new Set(list.map(r => r._id));
+        
+        // 2) Remove markers for reports that no longer exist (or got filtered out server-side)
+        for (const existingId of reportMarkers.keys()) {
+          if (!incomingIds.has(existingId)) {
+            removeReportMarker(existingId);
+          }
+        }
+        
+        // 3) Add or update each incoming report
+        for (const r of list) {
+          // Skip expired defensively
+          if (msUntilExpiry(r.expiresAt) <= 0) {
+            // ensure removed if somehow still present
+            if (reportMarkers.has(r._id)) removeReportMarker(r._id);
+            continue;
+          }
+          
+          if (!reportMarkers.has(r._id)) {
+            addReportMarker(r);
+          } 
+          // else {
+    //   updateReportMarkerIfNeeded(r);
+    // }
+  }
+  
+  // 4) If we had a popup open, keep it open if the marker still exists
+  if (openReportId && reportMarkers.has(openReportId)) {
+    const rec = reportMarkers.get(openReportId);
+    try { rec.marker.openPopup(); } catch {}
+  }
+}
+
+/** Public: call this whenever you refresh all_reports (replace whole list) */
+function setAllReports(newList) {
+  all_reports = Array.isArray(newList) ? newList : [];
+  syncReportMarkersFromAll();
+}
+
+/** Optional: call this if you only added one new report (to avoid full diff) */
+function addOneReport(report) {
+  // Update your source list if you want it to stay in sync
+  all_reports.push(report);
+  if (!reportMarkers.has(report._id)) addReportMarker(report);
+}
+
+/** Optional: call this if you removed one report by id */
+function removeOneReportById(reportId) {
+  all_reports = all_reports.filter(r => r._id !== reportId);
+  removeReportMarker(reportId);
+}
+
+/** Details overlay stub — fill with your UI show logic */
+function openReportDetailsOverlay(report) {
+  alert("working")
+  // Example:
+  // const overlay = document.getElementById("reportDetailsOverlay");
+  // overlay.querySelector("#detailType").textContent = report.type;
+  // overlay.querySelector("#detailSeverity").textContent = report.severity;
+  // overlay.querySelector("#detailDesc").textContent = report.description;
+  // overlay.style.display = "flex";
+}
+
+
+let all_reports = [];
+const reportMarkers = new Map();
+let openReportId = null;
+
+fetchReports().then((reports) => {
+  setAllReports(reports);
+});
+
+setInterval(() => {
+  fetchReports().then((reports) => {
+    setAllReports(reports);
+  });
+}, 120000);
+// marker
+
+
+
+
+
+
+
+if (reportPhotoFileEl) {
+  reportPhotoFileEl.addEventListener("change", () => {
+    uploadFileNameEl.textContent = reportPhotoFileEl.files[0]?.name || "No file chosen";
+  });
   }
   if (reportPhotoFileEl) {
   reportPhotoFileEl.addEventListener("change", onPhotoFileChange);

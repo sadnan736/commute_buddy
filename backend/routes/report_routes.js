@@ -4,6 +4,27 @@ const authenticate = require("../middleware/auth");
 const router = express.Router();
 
 
+router.get("/", async (req, res) => {
+  try {
+    const { activeOnly, sort } = req.query;
+
+    const filter = {};
+    if (String(activeOnly).toLowerCase() === "true") {
+      filter.expiresAt = { $gt: new Date() };
+    }
+
+    let sortSpec = { createdAt: -1 };
+    if (sort === "expiresAt") sortSpec = { expiresAt: 1 };
+
+    const reports = await Report.find(filter).sort(sortSpec).lean();
+    res.json(reports);
+  } catch (err) {
+    console.error("Fetch reports error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
 
 router.post("/", async (req, res) => {
   try {
