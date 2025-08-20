@@ -20,6 +20,19 @@ if (!token || !userId) {
 
 const axiosConfig = { headers: { Authorization: `Bearer ${token}` } };
 
+async function fetchUserName(userId) {
+  try {
+    const res = await axios.get(
+      `http://localhost:1477/api/reports/${userId}/name`,
+      axiosConfig
+    );
+    return res.data;
+  } catch (err) {
+    console.error("Error fetching user name:", err.response?.data || err.message);
+    return;
+  }
+}
+
 let saved_places = {};
 async function fetch_saved_places() {
   try {
@@ -33,7 +46,7 @@ async function fetch_saved_places() {
   }
 }
 
-async function create_report({ type, severity, validity, coords, description }) {
+async function create_report({ type, severity, validity, coords, description, reportedBy  }) {
   try {
     const res = await axios.post(
       "http://localhost:1477/api/reports",
@@ -41,7 +54,8 @@ async function create_report({ type, severity, validity, coords, description }) 
         type,
         severity,
         validity: Number(validity),
-        reportedBy: userId,
+        reportedBy,
+        reportedByUID: userId,
         location: { lat: coords.lat, lng: coords.lng },
         description,
         // photoUrl: undefined
@@ -113,6 +127,29 @@ export default function initMap() {
     } catch (e) {}
     mapInstance = null;
   }
+
+
+
+
+  // FOR REPORT VEWING OVERLAY
+
+const detailsOverlay = document.getElementById("reportDetailsOverlay");
+const closeDetailsOverlayBtn = document.getElementById("closeDetailsOverlay");
+
+const elDetailType = document.getElementById("detailType");
+const elDetailSeverity = document.getElementById("detailSeverity");
+const elDetailReportedBy = document.getElementById("detailReportedBy");
+const elDetailCreatedAt = document.getElementById("detailCreatedAt");
+const elDetailExpiresAt = document.getElementById("detailExpiresAt");
+const elDetailDescription = document.getElementById("detailDescription");
+const elDetailLat = document.getElementById("detailLat");
+const elDetailLng = document.getElementById("detailLng");
+const elDetailValidity = document.getElementById("detailValidity");
+const elDetailTimeLeft = document.getElementById("detailTimeLeft");
+const elDetailPhoto = document.getElementById("detailPhoto");
+const elDetailNoPhoto = document.getElementById("detailNoPhoto");
+
+// END
 
   // for reporting
   const reportDescriptionEl = document.getElementById("reportDescription");
@@ -391,22 +428,29 @@ function onConfirmReport() {
     reportedBy: userId,
     location: { lat: selectedCoords.lat, lng: selectedCoords.lng },description,
   });
-create_report({
+
+
+fetchUserName(userId).then((name) => {
+  const reporterName = name?.name ?? "";  
+  console.log(reporterName)
+  create_report({
     type,
     severity,
     validity,
     coords: selectedCoords,
     description,
+    reportedBy: reporterName,
   })
     .then((created) => {
-      reports.push(created)
-      console.log("Created report:", created);
-      alert("Report submitted!");
+      addOneReport(created)
       resetReportForm();
     })
     .catch(() => {
-      alert("Failed to submit report");
+      console.log("Failed to submit report");
     });
+});
+
+
 
 
   
@@ -415,6 +459,7 @@ create_report({
   // Optionally hide buttons after submit
   if (reportBtn) reportBtn.style.display = "none";
   if (saveBtn) saveBtn.style.display = "none";
+  if (currentMarker) mapInstance.removeLayer(currentMarker);
 }
 
 
@@ -480,34 +525,34 @@ function removeReportMarker(reportId) {
 }
 
 // /** Update popup/timer if a report changed (optional granular updates) */
-// function updateReportMarkerIfNeeded(report) {
-  //   const rec = reportMarkers.get(report._id);
-  //   if (!rec) return false;
+function updateReportMarkerIfNeeded(report) {
+    const rec = reportMarkers.get(report._id);
+    if (!rec) return false;
   
-  //   // If expiry changed, reset the timer
-  //   const msLeft = msUntilExpiry(report.expiresAt);
-  //   if (rec.expireTimerId) clearTimeout(rec.expireTimerId);
-  //   if (msLeft <= 0) {
-    //     removeReportMarker(report._id);
-    //     return true;
-    //   } else {
-      //     rec.expireTimerId = setTimeout(() => removeReportMarker(report._id), msLeft);
-      //   }
+    // If expiry changed, reset the timer
+    const msLeft = msUntilExpiry(report.expiresAt);
+    if (rec.expireTimerId) clearTimeout(rec.expireTimerId);
+    if (msLeft <= 0) {
+        removeReportMarker(report._id);
+        return true;
+      } else {
+          rec.expireTimerId = setTimeout(() => removeReportMarker(report._id), msLeft);
+        }
       
-      //   // Update popup content if key fields changed
-      //   const minsLeft = Math.max(1, Math.round(msLeft / 60000));
-      //   const newHtml = `
-      //     <div style="min-width:200px">
-      //       <strong>${(report.type || "report").toUpperCase()}</strong><br/>
-      //       Severity: ${report.severity || "-"}<br/>
-      //       Expires in: ~${minsLeft} min<br/>
-      //       <em>${report.description || ""}</em>
-      //     </div>
-      //   `;
-      //   rec.marker.setPopupContent(newHtml);
+        // Update popup content if key fields changed
+        const minsLeft = Math.max(1, Math.round(msLeft / 60000));
+        const newHtml = `
+          <div style="min-width:200px">
+            <strong>${(report.type || "report").toUpperCase()}</strong><br/>
+            Severity: ${report.severity || "-"}<br/>
+            Expires in: ~${minsLeft} min<br/>
+            <em>${report.description || ""}</em>
+          </div>
+        `;
+        rec.marker.setPopupContent(newHtml);
       
-      //   return true;
-      // }
+        return true;
+      }
       
       /** Diff & sync markers to match the latest all_reports */
       function syncReportMarkersFromAll() {
@@ -535,9 +580,9 @@ function removeReportMarker(reportId) {
           if (!reportMarkers.has(r._id)) {
             addReportMarker(r);
           } 
-          // else {
-    //   updateReportMarkerIfNeeded(r);
-    // }
+          else {
+      updateReportMarkerIfNeeded(r);
+    }
   }
   
   // 4) If we had a popup open, keep it open if the marker still exists
@@ -568,14 +613,54 @@ function removeOneReportById(reportId) {
 
 /** Details overlay stub — fill with your UI show logic */
 function openReportDetailsOverlay(report) {
-  alert("working")
-  // Example:
-  // const overlay = document.getElementById("reportDetailsOverlay");
-  // overlay.querySelector("#detailType").textContent = report.type;
-  // overlay.querySelector("#detailSeverity").textContent = report.severity;
-  // overlay.querySelector("#detailDesc").textContent = report.description;
-  // overlay.style.display = "flex";
+  const toUpper = (s) => (s || "—").toString().toUpperCase();
+  const fmt = (d) => {
+    const date = new Date(d);
+    if (isNaN(date)) return "—";
+    return date.toLocaleString();
+  };
+  const timeLeftMin = Math.max(
+    0,
+    Math.round((new Date(report.expiresAt).getTime() - Date.now()) / 60000)
+  );
+
+  // Fill fields
+  if (elDetailType) elDetailType.textContent = toUpper(report.type);
+  if (elDetailSeverity) {
+    elDetailSeverity.textContent = toUpper(report.severity);
+    // severity color
+    elDetailSeverity.style.background =
+      report.severity === "high"   ? "#ef4444" :
+      report.severity === "medium" ? "#f59e0b" :
+      report.severity === "low"    ? "#22c55e" : "#3b82f6";
+  }
+
+  if (elDetailReportedBy) elDetailReportedBy.textContent = report.reportedBy || "—";
+  if (elDetailCreatedAt)  elDetailCreatedAt.textContent  = fmt(report.createdAt);
+  if (elDetailExpiresAt)  elDetailExpiresAt.textContent  = fmt(report.expiresAt);
+  if (elDetailDescription) elDetailDescription.textContent = report.description || "—";
+  if (elDetailLat) elDetailLat.textContent = (report.location?.lat ?? "—");
+  if (elDetailLng) elDetailLng.textContent = (report.location?.lng ?? "—");
+  if (elDetailValidity) elDetailValidity.textContent = report.validity ?? "—";
+  if (elDetailTimeLeft) elDetailTimeLeft.textContent = `${timeLeftMin} min`;
+
+  // Photo
+  const hasPhoto = !!report.photoUrl;
+  if (elDetailPhoto && elDetailNoPhoto) {
+    if (hasPhoto) {
+      elDetailPhoto.src = report.photoUrl;
+      elDetailPhoto.style.display = "block";
+      elDetailNoPhoto.style.display = "none";
+    } else {
+      elDetailPhoto.removeAttribute("src");
+      elDetailPhoto.style.display = "none";
+      elDetailNoPhoto.style.display = "block";
+    }
+  }
+
+  if (detailsOverlay) detailsOverlay.style.display = "flex";
 }
+
 
 
 let all_reports = [];
@@ -610,6 +695,11 @@ if (reportPhotoFileEl) {
 
 
 
+  if (closeDetailsOverlayBtn) {
+    closeDetailsOverlayBtn.addEventListener("click", () => {
+      if (detailsOverlay) detailsOverlay.style.display = "none";
+    });
+  }
 
   
 

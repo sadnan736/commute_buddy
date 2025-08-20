@@ -139,6 +139,56 @@ export default function Maps() {
 
       {/* end */}
 
+      {/* REPORT DETAILS OVERLAY */}
+      <div id="reportDetailsOverlay" className="overlay" style={{ display: "none" }}>
+        <div className="overlay-content details-content">
+          <span className="close-btn" id="closeDetailsOverlay">&times;</span>
+
+          <div className="details-header">
+            <div className="details-title">
+              <span id="detailType" className="badge">TYPE</span>
+              <span id="detailSeverity" className="badge badge-sev">SEVERITY</span>
+            </div>
+            <div className="details-sub">
+              <span>Reported by: <strong id="detailReportedBy">—</strong></span>
+              <span>Created: <strong id="detailCreatedAt">—</strong></span>
+              <span>Expires: <strong id="detailExpiresAt">—</strong></span>
+            </div>
+          </div>
+
+          <div className="details-grid">
+            <div className="details-section">
+              <h4>Description</h4>
+              <p id="detailDescription">—</p>
+            </div>
+
+            <div className="details-section">
+              <h4>Location</h4>
+              <div className="coords">
+                <span>Lat: <strong id="detailLat">—</strong></span>
+                <span>Lng: <strong id="detailLng">—</strong></span>
+              </div>
+            </div>
+
+            <div className="details-section">
+              <h4>Validity</h4>
+              <div className="chips">
+                <span className="chip">Valid (min): <strong id="detailValidity">—</strong></span>
+                <span className="chip">Time left: <strong id="detailTimeLeft">—</strong></span>
+              </div>
+            </div>
+
+            <div className="details-section photo-section">
+              <h4>Photo</h4>
+              <img id="detailPhoto" alt="Incident" style={{ display: "none", width: "100%", borderRadius: "6px" }} />
+              <div id="detailNoPhoto" className="muted">No photo provided</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* END */}
+
       <div id="locationOverlay" className="overlay" style={{ display: "none" }}>
         <div className="overlay-content">
           <span className="close-btn" id="closeOverlay">

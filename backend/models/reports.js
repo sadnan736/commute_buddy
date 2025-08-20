@@ -32,6 +32,11 @@ const reportSchema = new mongoose.Schema(
       required: true,
     },
 
+    reportedByUID: {
+      type: String,
+      required: true,
+    },
+
     location: {
       lat: { type: Number, required: true },
       lng: { type: Number, required: true },

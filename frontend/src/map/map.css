@@ -219,10 +219,12 @@ li.blog {
   z-index: 2000;
   justify-content: center;
   align-items: center;
+  
 }
 
 /* Overlay content box */
 .overlay-content {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
   background: #222;
   padding: 20px;
   border-radius: 8px;
@@ -306,3 +308,106 @@ background-color: #f6603b;
   min-height: 60px;
   font-family: inherit;
 }
+
+
+/* REORRT DETAILS OVERLAY */
+
+.details-content {
+  width: 620px;
+  max-width: 92vw;
+  background: #1c1c1c;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+.details-header {
+  margin-bottom: 12px;
+}
+
+.details-title {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #2b2b2b;
+  color: #fff;
+  font-size: 0.85rem;
+  letter-spacing: 0.4px;
+}
+
+.badge-sev {
+  background: #3b82f6; /* will be adjusted in JS per severity */
+}
+
+.details-sub {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  color: #cfcfcf;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.details-section h4 {
+  margin: 0 0 6px 0;
+  font-size: 0.95rem;
+  color: #eaeaea;
+}
+
+.details-section p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.coords {
+  display: flex;
+  gap: 14px;
+  font-size: 0.95rem;
+}
+
+.chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  background: #222;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  color: #e6e6e6;
+}
+
+.photo-section img {
+  margin-top: 6px;
+}
+
+.muted {
+  color: #9a9a9a;
+  font-size: 0.9rem;
+}
+
+/* Slightly wider on large screens */
+@media (min-width: 720px) {
+  .details-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .photo-section {
+    grid-column: 1 / -1;
+  }
+}
+
+
+/* END */

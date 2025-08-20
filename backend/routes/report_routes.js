@@ -2,7 +2,20 @@ const express = require("express");
 const Report = require("../models/reports");
 const authenticate = require("../middleware/auth");
 const router = express.Router();
+const User = require("../models/users");
 
+
+router.get("/:id/name", authenticate, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("name");
+
+    
+    res.json({ name: user.name });
+
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 router.get("/", async (req, res) => {
   try {
@@ -28,7 +41,7 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { type, severity, validity, reportedBy, location, description, photoUrl } = req.body || {};
+    const { type, severity, validity, reportedBy,reportedByUID, location, description, photoUrl } = req.body || {};
 
     // validation
     if (!type || !severity || !description || !reportedBy) {
@@ -49,6 +62,7 @@ router.post("/", async (req, res) => {
       severity,
       validity: validityNum,
       reportedBy: String(reportedBy),
+      reportedByUID: String(reportedByUID),
       location: { lat: location.lat, lng: location.lng },
       description,
       ...(photoUrl ? { photoUrl } : {}),
