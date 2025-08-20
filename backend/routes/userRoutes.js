@@ -1,30 +1,61 @@
+const fs = require("fs");
+const path = require("path");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/users");
+const User = require("../models/user");
 const authenticate = require("../middleware/auth");
-const authorize = require("../middleware/authorize");
+const multer = require("multer");
 
 const router = express.Router();
 
-router.post("/register", async (req, res) => {
-  const { name, email, password } = req.body;
+// Ensure uploads folder exists
+const uploadDir = path.join(__dirname, "../uploads");
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+console.log("Uploads folder ready:", uploadDir);
+
+// Multer setup
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+});
+const upload = multer({ storage });
+
+// ------------------ REGISTER ------------------
+router.post("/register", upload.single("avatar"), async (req, res) => {
   try {
+    console.log("Body:", req.body);
+    console.log("File:", req.file);
+
+    const { name = "", email = "", password = "" } = req.body;
+    if (!name || !email || !password)
+      return res.status(400).json({ error: "Name, email, and password are required" });
+
+    const avatar = req.file ? `/uploads/${req.file.filename}` : null;
+
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ error: "Email already exists" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({ name, email, password: hashedPassword });
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      avatar,
+    });
+
     res.status(201).json({ message: "User registered", userId: user._id });
   } catch (err) {
-    res.status(500).json({ error: "Server error" });
+    console.error("Register error:", err);
+    res.status(500).json({ error: err.message || "Server error" });
   }
 });
 
+// ------------------ LOGIN ------------------
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
   try {
+    const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ error: "Invalid credentials" });
 
@@ -32,12 +63,16 @@ router.post("/login", async (req, res) => {
     if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-    res.json({ message: "Login successful", token });
+    res.json({ message: "Login successful", token, userId: user._id });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
   }
 });
 
+module.exports = router;
+
+
+// ------------------ GET USER ------------------
 router.get("/:id", authenticate, async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
@@ -48,6 +83,7 @@ router.get("/:id", authenticate, async (req, res) => {
   }
 });
 
+// ------------------ UPDATE USER ------------------
 router.put("/:id", authenticate, async (req, res) => {
   try {
     const updates = req.body;
@@ -59,25 +95,28 @@ router.put("/:id", authenticate, async (req, res) => {
   }
 });
 
-//For_Updating_Avatar
-
-router.put("/:id/avatar", authenticate, async (req, res) => {
+// ------------------ UPDATE AVATAR ------------------
+router.put("/:id/avatar", authenticate, upload.single("avatar"), async (req, res) => {
   try {
-    const { avatar } = req.body;
-    const user = await User.findByIdAndUpdate(req.params.id, { avatar }, { new: true }).select("-password");
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+
+    const avatarPath = `/uploads/${req.file.filename}`;
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { avatar: avatarPath },
+      { new: true }
+    ).select("-password");
+
     res.json({ message: "Avatar updated", user });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
   }
 });
 
-
-
-
-//For Updating Locations
+// ------------------ UPDATE LOCATIONS ------------------
 router.put("/:id/locations", authenticate, async (req, res) => {
   try {
-    const { homeLocation, workLocation } = req.body;
+    const { homeLocation = "", workLocation = "" } = req.body;
     const user = await User.findByIdAndUpdate(
       req.params.id,
       { homeLocation, workLocation },
@@ -89,12 +128,10 @@ router.put("/:id/locations", authenticate, async (req, res) => {
   }
 });
 
-
-//Updating Notification Preferences
-
+// ------------------ UPDATE NOTIFICATIONS ------------------
 router.put("/:id/notifications", authenticate, async (req, res) => {
   try {
-    const { notificationPreferences } = req.body;
+    const { notificationPreferences = {} } = req.body;
     const user = await User.findByIdAndUpdate(
       req.params.id,
       { notificationPreferences },
@@ -106,19 +143,13 @@ router.put("/:id/notifications", authenticate, async (req, res) => {
   }
 });
 
-
-//Submitting Documents
+// ------------------ SUBMIT DOCUMENTS ------------------
 router.post("/:id/verify", authenticate, async (req, res) => {
   try {
-    const { documents } = req.body; // e.g., array of file URLs/names
+    const { documents = [] } = req.body;
     const user = await User.findByIdAndUpdate(
       req.params.id,
-      { 
-        verifiedDocuments: documents, 
-        isVerified: false,
-        verificationStatus: "pending",
-        verificationSubmittedAt: new Date()
-      },
+      { verifiedDocuments: documents, isVerified: false },
       { new: true }
     ).select("-password");
     res.json({ message: "Verification documents submitted", user });
@@ -127,9 +158,7 @@ router.post("/:id/verify", authenticate, async (req, res) => {
   }
 });
 
-
-
-// GET 
+// ------------------ FOLLOWED ROUTES ------------------
 router.get("/:id/followed-routes", authenticate, async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("followedRoutes");
@@ -139,12 +168,9 @@ router.get("/:id/followed-routes", authenticate, async (req, res) => {
   }
 });
 
-
-
-// PUT 
 router.put("/:id/followed-routes", authenticate, async (req, res) => {
   try {
-    const { routes } = req.body; // array of route names
+    const { routes = [] } = req.body;
     const user = await User.findByIdAndUpdate(
       req.params.id,
       { followedRoutes: routes },
@@ -156,9 +182,6 @@ router.put("/:id/followed-routes", authenticate, async (req, res) => {
   }
 });
 
-
-
-// DELETE 
 router.delete("/:id/followed-routes/:rid", authenticate, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -170,12 +193,7 @@ router.delete("/:id/followed-routes/:rid", authenticate, async (req, res) => {
   }
 });
 
-
-
-//Prefered Regions
-
-
-// GET
+// ------------------ PREFERRED REGIONS ------------------
 router.get("/:id/preferred-regions", authenticate, async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("preferredRegions");
@@ -185,12 +203,9 @@ router.get("/:id/preferred-regions", authenticate, async (req, res) => {
   }
 });
 
-
-
-// PUT 
 router.put("/:id/preferred-regions", authenticate, async (req, res) => {
   try {
-    const { regions } = req.body; // array of region names
+    const { regions = [] } = req.body;
     const user = await User.findByIdAndUpdate(
       req.params.id,
       { preferredRegions: regions },
@@ -201,20 +216,5 @@ router.put("/:id/preferred-regions", authenticate, async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
-
-/*
-# Admin routes have been moved to routes/adminRoutes.js
-# This includes:
-# - User role management: PUT /api/admin/users/:id/role
-# - Verification management: GET/PUT /api/admin/verification/*
-
-# How to create the first admin:
-1. Open MongoDB Atlas → Collections → users.
-2. Edit the trusted user document.
-3. Add/modify: "role": "admin"
-
-Note: New sign-ups automatically get role: "user"
-Admin endpoints are now at /api/admin/*
-*/
 
 module.exports = router;
