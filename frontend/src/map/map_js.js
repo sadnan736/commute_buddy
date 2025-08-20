@@ -9,6 +9,7 @@ L.Icon.Default.mergeOptions({
 });
 
 
+const axiosConfig = { headers: { Authorization: `Bearer ${token}` } };
 
 let saved_places = {};
 async function fetch_saved_places() {
@@ -76,7 +77,6 @@ if (!token || !userId) {
   window.location.href = "login.html";
 }
 
-const axiosConfig = { headers: { Authorization: `Bearer ${token}` } };
   if (mapInstance) {
     try {
       mapInstance.remove();
