@@ -1,9 +1,7 @@
 const express = require("express");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/users");
 const authenticate = require("../middleware/auth");
-const authorize = require("../middleware/authorize");
 const router = express.Router();
 
 router.get("/:id/saved-places", authenticate, async (req, res) => {
