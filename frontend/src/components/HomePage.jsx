@@ -91,6 +91,46 @@ function HomePage() {
           </div>
         </form>
       </section>
+
+      <section className="about-section" >
+        <div className="about-container">
+          <h2>About Our Website</h2>
+          <p className="about-text">
+            <span className="highlight">CommuteBuddy</span> is designed to make your daily
+            travel safe, affordable, and enjoyable. Our platform helps people find and connect
+            with commuters traveling along similar routes, reducing costs and promoting
+            eco-friendly travel.
+          </p>
+
+          <div className="about-details">
+            <div className="detail-box">
+              <h3>📧 Contact Us</h3>
+              <p className="detaisl-text">
+                Got questions or feedback? Reach out at <br />
+                <a href="mailto:commutebuddy@gmail.com">commutebuddy@gmail.com</a>
+              </p>
+            </div>
+
+            <div className="detail-box">
+              <h3>🌍 Our Mission</h3>
+              <p className="detaisl-text">
+                We are spreading awareness about safe commuting, reducing traffic jams,
+                lowering carbon emissions, and building a strong commuting community.
+              </p>
+            </div>
+
+            <div className="detail-box">
+              <h3>👨‍💻 This website is made by</h3>
+              <ul className="builders-list">
+                <li>Mushfiq Rahman</li>
+                <li>Sadnan Islam</li>
+                <li>Musfique Us Salehin</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </>
   );
 }

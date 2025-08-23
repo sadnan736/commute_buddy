@@ -2,11 +2,7 @@ import React from 'react';
 import '../assets/profile.css';
 
 function ProfilePage() {
-  const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    alert('You have been logged out.');
-    window.location.href = '/';
-  };
+  
 
   return (
     <>
