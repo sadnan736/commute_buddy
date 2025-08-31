@@ -33,7 +33,7 @@ router.post("/:id/saved-places", authenticate, async (req, res) => {
     }
 
     user.savedPlaces.set(locationName, { lat, lng });
-
+    user.markModified('savedPlaces');
     await user.save();
 
     res.json({ savedPlaces: user.savedPlaces });

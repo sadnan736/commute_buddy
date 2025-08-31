@@ -410,4 +410,32 @@ background-color: #f6603b;
 }
 
 
+
+
+
+
+
+
+
+.notifications {
+  margin-top: 20px;
+}
+
+.notifications h3 {
+  margin-bottom: 10px;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.notifications p {
+  font-style: italic;
+  color: #aaa;
+}
+
+.notifications ul {
+  list-style: none;
+  padding-left: 0;
+  max-height: 200px; /* Limits height, makes scrollable
+
+
 /* END */

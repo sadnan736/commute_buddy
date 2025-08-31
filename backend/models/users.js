@@ -63,7 +63,14 @@ const userSchema = new mongoose.Schema({
       lng: { type: Number, required: true }
     }),
     default: {}
-  }
+  },
+
+  pushSubscription: {
+  endpoint: String,
+  keys: {p256dh: String,auth: String}
+   }
+
+  
 });
 
 module.exports = mongoose.model("User", userSchema);

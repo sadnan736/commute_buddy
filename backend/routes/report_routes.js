@@ -38,6 +38,8 @@ router.get("/", async (req, res) => {
 });
 
 
+const { notifyNearbyUsers } = require("../utils/notifications");
+
 
 router.post("/", async (req, res) => {
   try {
@@ -68,11 +70,22 @@ router.post("/", async (req, res) => {
       ...(photoUrl ? { photoUrl } : {}),
     });
 
+
+     await notifyNearbyUsers(report);
+
     return res.status(201).json(report);
   } catch (err) {
     console.error("Create report error:", err);
     return res.status(500).json({ error: "Server error" });
   }
+
+
+
+  
+   
+
+  
+
 });
 
 module.exports = router;

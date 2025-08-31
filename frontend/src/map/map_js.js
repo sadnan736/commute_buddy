@@ -1,3 +1,8 @@
+//for report votes  
+
+//
+
+
 import L from "leaflet";
 import axios from "axios";
 delete L.Icon.Default.prototype._getIconUrl;
@@ -7,6 +12,8 @@ L.Icon.Default.mergeOptions({
   iconUrl: "images/marker-icon.png",
   shadowUrl: "/images/marker-shadow.png",
 });
+
+
 
 
 const token = localStorage.getItem("token");
@@ -657,6 +664,9 @@ function openReportDetailsOverlay(report) {
       elDetailNoPhoto.style.display = "block";
     }
   }
+
+  
+
 
   if (detailsOverlay) detailsOverlay.style.display = "flex";
 }

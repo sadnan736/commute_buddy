@@ -1,17 +1,49 @@
 // src/components/Maps.jsx
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import initMap from "./map_js";
 import "leaflet/dist/leaflet.css";
-import "./map.css"; // your existing styles
+import "./map.css";
+
+import Notifications from "./notification";
 
 export default function Maps() {
+  const [notifications, setNotifications] = useState([]);
+
   useEffect(() => {
-    // initMap returns a cleanup function
     const cleanup = initMap();
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 60000); // refresh every 1 min
     return () => {
       if (typeof cleanup === "function") cleanup();
+      clearInterval(interval);
     };
   }, []);
+
+  async function fetchNotifications() {
+    try {
+      const res = await axios.get("/api/notifications", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setNotifications(res.data);
+    } catch (err) {
+      console.error("Failed to fetch notifications", err);
+    }
+  }
+
+  async function markRead(id) {
+    try {
+      await axios.put(`/api/notifications/${id}/read`, null, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
+      );
+    } catch (err) {
+      console.error("Failed to mark notification as read", err);
+    }
+  }
+
 
   return (
     <>
@@ -31,6 +63,14 @@ export default function Maps() {
               </ul>
           </div>
       <div className="sidebar">
+
+        <div className="notifications-wrapper" style={{ marginTop: 20 }}>
+                   <Notifications />
+        </div>
+
+
+
+        
         <div>
           <h3>Filters</h3>
           <div className="filter-btn">Accidents</div>
@@ -184,6 +224,7 @@ export default function Maps() {
               <div id="detailNoPhoto" className="muted">No photo provided</div>
             </div>
           </div>
+          <div id="reportVotesContainer"></div>
         </div>
       </div>
 

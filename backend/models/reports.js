@@ -51,6 +51,14 @@ const reportSchema = new mongoose.Schema(
       required: true,
     },
 
+
+    votes: {
+    upvotes: { type: Number, default: 0 },
+    downvotes: { type: Number, default: 0 },
+    },
+    votedUsers: [{ userId: String }] //track users who voted to prevent multiple votes
+
+
   },
   { timestamps: true }
 );
