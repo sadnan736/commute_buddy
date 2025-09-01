@@ -10,6 +10,7 @@ require("dotenv").config();
 
 
 const userRoutes = require("./routes/userRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const map_routes = require("./routes/map_routes");
 const report_routes = require("./routes/report_routes")
 
@@ -25,6 +26,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/users", userRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/map", map_routes);
 app.use("/api/reports",report_routes)
 
