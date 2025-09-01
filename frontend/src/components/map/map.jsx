@@ -54,11 +54,11 @@ export default function Maps() {
                   <div className="bud-map">Buddy</div>
               </div>
               <ul>
-                  <li className="h"><a href="profile.html">Home</a></li>
+                  <li className="h"><a href="/">Home</a></li>
                   <li className="about"><a href="#">About</a></li>
                   <li className="help"><a href="#">Help</a></li>
                   <li className="blog"><a href="#">Blog</a></li>
-                  <li><a href="dashboard.html">Dashboard</a></li>
+                  <li><a href="/dashboard">Dashboard</a></li>
                   <li><a id="logoutBtnMap">Logout</a></li>
               </ul>
           </div>
