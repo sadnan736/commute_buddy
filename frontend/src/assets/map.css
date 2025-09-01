@@ -190,6 +190,7 @@ body,
 .delete-btn{
   position: absolute;
   bottom: 20px;
+  width: 150px;
   right: 20px;
   background-color: #f6603b;
   color: white;

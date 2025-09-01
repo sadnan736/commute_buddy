@@ -40,15 +40,14 @@ const userSchema = new mongoose.Schema({
     default: false,
   },
 
-  savedPlaces: {type: [
-      {
-        name: String,
-        address: String,
-        coordinates: { lat: Number, lng: Number },
-      }
-    ],
-    default: [],
-  },
+  savedPlaces:{
+    type: Map,
+    of: new mongoose.Schema({
+      lat: { type: Number, required: true },
+      lng: { type: Number, required: true }
+    }),
+    default: {}
+  }
 });
 
 module.exports = mongoose.model("User", userSchema);
