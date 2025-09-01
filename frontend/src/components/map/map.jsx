@@ -47,11 +47,11 @@ export default function Maps() {
 
   return (
     <>
-    <div className="map-page">
-          <div className="navi">
-              <div className="logo">
-                  <div className="com">Commute</div>
-                  <div className="bud">Buddy</div>
+    <div className="map-page-map">
+          <div className="navi-map">
+              <div className="logo-map">
+                  <div className="com-map">Commute</div>
+                  <div className="bud-map">Buddy</div>
               </div>
               <ul>
                   <li className="h"><a href="profile.html">Home</a></li>
@@ -62,7 +62,7 @@ export default function Maps() {
                   <li><a id="logoutBtn">Logout</a></li>
               </ul>
           </div>
-      <div className="sidebar">
+      <div className="sidebar-map">
 
         <div className="notifications-wrapper" style={{ marginTop: 20 }}>
                    <Notifications />

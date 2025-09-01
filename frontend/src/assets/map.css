@@ -7,7 +7,7 @@ body,
   /* width: 100%; */
   overflow: hidden;
 }
-.map-page {
+.map-page-map {
   margin: 0;
   font-family: Arial, sans-serif;
   background-color: #111;
@@ -15,7 +15,7 @@ body,
   display: flex;
   height: 100vh;
 }
-.navi {
+.navi-map {
   display: flex;
   align-items: center;
   height: 84px;
@@ -28,7 +28,7 @@ body,
   justify-content: space-between;
 }
 
-.navi ul {
+.navi-map ul {
   display: flex;
   list-style: none;
   margin-left: 0px;
@@ -38,14 +38,14 @@ body,
   align-items: center;
 }
 
-.navi ul li {
+.navi-map ul li {
   margin: 0 20px;
   font-size: 20px;
   font-weight: 500;
   color: rgb(110, 35, 214);
 }
 
-ul li a {
+.navi-map ul li a {
   font-size: 25px;
   font-weight: 300;
   color: #ffffff;
@@ -53,39 +53,39 @@ ul li a {
   text-shadow: white 0px 0px 15px;
 }
 
-li.h {
+.navi-map ul li.h {
   padding-right: 50px;
 }
 
-li.about {
+.navi-map ul li.about {
   padding-right: 50px;
 }
 
-li.help {
+.navi-map ul li.help {
   padding-right: 50px;
 }
 
-li.blog {
+.navi-map ul li.blog {
   padding-right: 250px;
 }
-.logo {
+.logo-map {
   display: flex;
   margin-left: 30px;
   font-weight: bold;
   padding-left: 25px;
 }
-.com {
+.com-map {
   color: #ffffff;
   font-size: 20px;
   font-weight: 600;
 }
 
-.bud {
+.bud-map {
   color: #fe1f1f;
   font-size: 30px;
   font-weight: 600;
 }
-.sidebar {
+.sidebar-map {
   margin-top: 5rem;
   width: 250px;
   padding: 20px;
@@ -98,20 +98,20 @@ li.blog {
   scroll-behavior: smooth;
 
 }
-.sidebar::-webkit-scrollbar {
+.sidebar-map::-webkit-scrollbar {
     width: 8px;
 }
 
-.sidebar::-webkit-scrollbar-track {
+.sidebar-map::-webkit-scrollbar-track {
     background: #111;
 }
 
-.sidebar::-webkit-scrollbar-thumb {
+.sidebar-map::-webkit-scrollbar-thumb {
     background-color: #555;
     border-radius: 6px;
 }
 
-.sidebar h3 {
+.sidebar-map h3 {
   margin-top: 0;
 }
 .filter-btn {
@@ -435,7 +435,8 @@ background-color: #f6603b;
 .notifications ul {
   list-style: none;
   padding-left: 0;
-  max-height: 200px; /* Limits height, makes scrollable
+  max-height: 200px; 
+}/* Limits height, makes scrollable
 
 
 /* END */
