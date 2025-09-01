@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import initMap from "./map_js";
 import "leaflet/dist/leaflet.css";
-import "./map.css";
+import "../../assets/map.css";
 
 import Notifications from "./notification";
 
