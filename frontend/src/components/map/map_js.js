@@ -21,7 +21,7 @@ const userId = localStorage.getItem("userId");
 
 if (!token || !userId) {
   alert("Token or userId missing", token, userId);
-  window.location.href = "login.html";
+  window.location.href = '/';
 }
 
 
@@ -730,6 +730,6 @@ if (reportPhotoFileEl) {
   document.getElementById("logoutBtn").addEventListener("click", () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
-    window.location.href = "login.html";
+    window.location.href =  '/';
   });
 }
