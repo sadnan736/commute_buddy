@@ -2,6 +2,9 @@ body {
   display: block !important;
   background: #111;
 }
+:root {
+  --topbar-h: 84px;              /* your .navi-map height */
+}
 
 html,
 body,
@@ -59,6 +62,15 @@ body,
   color: #ffffff;
   text-decoration: none;
   text-shadow: white 0px 0px 15px;
+}
+
+#logoutBtnMap{
+    padding: 10px 15px;
+    background-color: #fe1f1f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .navi-map ul li.h {
@@ -156,7 +168,6 @@ body,
 .map-container {
   flex: 1;
   position: relative;
-  height: calc(100vh - 5rem);
 }
 
 #map {

@@ -59,7 +59,7 @@ export default function Maps() {
                   <li className="help"><a href="#">Help</a></li>
                   <li className="blog"><a href="#">Blog</a></li>
                   <li><a href="dashboard.html">Dashboard</a></li>
-                  <li><a id="logoutBtn">Logout</a></li>
+                  <li><a id="logoutBtnMap">Logout</a></li>
               </ul>
           </div>
       <div className="sidebar-map">

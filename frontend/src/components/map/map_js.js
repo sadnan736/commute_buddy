@@ -727,7 +727,7 @@ if (reportPhotoFileEl) {
   if (deleteBtn) deleteBtn.addEventListener("click", onDelBtnClick);
 
   updateSavedPlacesUI();
-  document.getElementById("logoutBtn").addEventListener("click", () => {
+  document.getElementById("logoutBtnMap").addEventListener("click", () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
     window.location.href =  '/';
