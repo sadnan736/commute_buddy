@@ -13,7 +13,7 @@ function ProfilePage() {
         <ul>
           <li className="h"><a href="/">Home</a></li>
           <li className="about"><a href="#about">About</a></li>
-          <li className="map"><a href="#map">Map</a></li>
+          <li className="map"><a href="/map">Map</a></li>
           <li className="blog"><a href="#blog">Blog</a></li>
           <li className="dash"><a href="/dashboard">Dashboard</a></li>
         </ul>

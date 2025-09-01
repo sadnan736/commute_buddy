@@ -18,22 +18,23 @@ router.get("/:id/saved-places", authenticate, async (req, res) => {
   }
 });
 
-
 router.post("/:id/saved-places", authenticate, async (req, res) => {
   try {
     const { locationName, lat, lng } = req.body;
 
     if (!locationName || lat === undefined || lng === undefined) {
-      return res.status(400).json({ error: "locationName, lat and lng are required" });
+      return res
+        .status(400)
+        .json({ error: "locationName, lat and lng are required" });
     }
 
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-
+    console.log( { lat, lng })
     user.savedPlaces.set(locationName, { lat, lng });
-    user.markModified('savedPlaces');
+
     await user.save();
 
     res.json({ savedPlaces: user.savedPlaces });
@@ -74,7 +75,5 @@ router.delete("/:id/saved-places", authenticate, async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
-
-
 
 module.exports = router;

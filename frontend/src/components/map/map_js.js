@@ -19,10 +19,7 @@ L.Icon.Default.mergeOptions({
 const token = localStorage.getItem("token");
 const userId = localStorage.getItem("userId");
 
-if (!token || !userId) {
-  alert("Token or userId missing", token, userId);
-  window.location.href = '/';
-}
+
 
 
 const axiosConfig = { headers: { Authorization: `Bearer ${token}` } };
@@ -127,7 +124,10 @@ let currentMarker = null;
 
 
 export default function initMap() {
-
+  if (!token || !userId) {
+    alert("Token or userId missing", token, userId);
+    window.location.href = '/';
+  }
   if (mapInstance) {
     try {
       mapInstance.remove();
