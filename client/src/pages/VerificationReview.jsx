@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { adminService } from '../services/api';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
+import api from '../services/api'; // Import the main api instance
 import { 
   ArrowLeft,
   User,
@@ -109,7 +110,30 @@ const VerificationReview = () => {
     setSelectedDocument(null);
   };
 
+  const openDocumentInNewTab = async (doc) => {
+    try {
+      const response = await api.get(
+        `/admin/verification/document/${userId}/${doc._id}`,
+        { responseType: 'blob' } // Important: expect a binary response
+      );
+
+      const file = new Blob([response.data], { type: doc.contentType });
+      const fileURL = URL.createObjectURL(file);
+      
+      // Open the URL in a new tab
+      window.open(fileURL, '_blank');
+      
+      // Optional: Revoke the object URL after some time to free up memory
+      setTimeout(() => URL.revokeObjectURL(fileURL), 60000);
+
+    } catch (error) {
+      console.error("Could not open document", error);
+      toast.error("Could not display document. Please try again.");
+    }
+  };
+
   const getFileType = (filename) => {
+    if (!filename || typeof filename !== 'string') return 'document';
     const extension = filename.split('.').pop().toLowerCase();
     if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) return 'image';
     if (['pdf'].includes(extension)) return 'pdf';
@@ -340,13 +364,13 @@ const VerificationReview = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {userDetails.verifiedDocuments.map((doc, index) => {
-                    const fileType = getFileType(doc);
+                  {userDetails.verifiedDocuments.map((doc) => {
+                    const fileType = getFileType(doc.name);
                     
                     return (
-                      <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div key={doc._id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between mb-3">
-                          <h4 className="font-medium text-gray-900 truncate">{doc}</h4>
+                          <h4 className="font-medium text-gray-900 truncate">{doc.name}</h4>
                           <div className="flex space-x-2">
                             {fileType === 'image' && (
                               <button
@@ -357,7 +381,7 @@ const VerificationReview = () => {
                               </button>
                             )}
                             <button
-                              onClick={() => window.open(`/documents/${doc}`, '_blank')}
+                              onClick={() => openDocumentInNewTab(doc)}
                               className="p-2 text-gray-400 hover:text-primary-600 transition-colors"
                             >
                               <Download className="w-4 h-4" />
@@ -368,8 +392,8 @@ const VerificationReview = () => {
                         <div className="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg overflow-hidden">
                           {fileType === 'image' ? (
                             <img
-                              src={`/documents/${doc}`}
-                              alt={doc}
+                              src={`/api/admin/verification/document/${userId}/${doc._id}`}
+                              alt={doc.name}
                               className="w-full h-48 object-cover cursor-pointer"
                               onClick={() => openImageModal(doc)}
                             />
@@ -391,7 +415,7 @@ const VerificationReview = () => {
                             {fileType.toUpperCase()}
                           </span>
                           <button
-                            onClick={() => window.open(`/documents/${doc}`, '_blank')}
+                            onClick={() => openDocumentInNewTab(doc)}
                             className="text-xs text-primary-600 hover:text-primary-800 font-medium"
                           >
                             Open Full Size
@@ -412,7 +436,7 @@ const VerificationReview = () => {
         <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-4xl max-h-screen overflow-hidden shadow-2xl">
             <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="text-lg font-medium text-gray-900">{selectedDocument}</h3>
+              <h3 className="text-lg font-medium text-gray-900">{selectedDocument.name}</h3>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setImageZoom(Math.max(50, imageZoom - 25))}
@@ -443,8 +467,8 @@ const VerificationReview = () => {
             </div>
             <div className="p-4 max-h-96 overflow-auto">
               <img
-                src={`/documents/${selectedDocument}`}
-                alt={selectedDocument}
+                src={`/api/admin/verification/document/${userId}/${selectedDocument._id}`}
+                alt={selectedDocument.name}
                 className="max-w-full h-auto"
                 style={{
                   transform: `scale(${imageZoom / 100}) rotate(${imageRotation}deg)`,

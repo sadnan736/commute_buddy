@@ -123,27 +123,43 @@ const VerificationCenter = () => {
       return;
     }
 
+    // Filter out files that have already been submitted
+    const newFiles = uploadedFiles.filter(f => f.file);
+    if (newFiles.length === 0) {
+      toast.info('No new documents to submit.');
+      return;
+    }
+
     setIsLoading(true);
     
+    const formData = new FormData();
+    newFiles.forEach(fileObject => {
+      formData.append('documents', fileObject.file);
+    });
+    
     try {
-      // In a real implementation, you would upload files to a server/cloud storage
-      // For now, we'll simulate this with the file names
-      const documentNames = uploadedFiles.map(file => file.name || file.url);
+      const response = await profileService.submitVerification(formData);
       
-      const response = await profileService.submitVerification(user._id, documentNames);
+      // Update local state with the user data from the response
+      const updatedUser = response.user;
+      const updatedDocuments = updatedUser.verifiedDocuments || [];
       
-      updateUser({
-        verificationStatus: 'pending',
-        verificationSubmittedAt: new Date().toISOString(),
-        verifiedDocuments: documentNames
-      });
+      updateUser(updatedUser);
       
       setVerificationData(prev => ({
         ...prev,
-        verificationStatus: 'pending',
-        verificationSubmittedAt: new Date().toISOString(),
-        verifiedDocuments: documentNames
+        verificationStatus: updatedUser.verificationStatus,
+        verificationSubmittedAt: updatedUser.verificationSubmittedAt,
+        verifiedDocuments: updatedDocuments
       }));
+
+      // Update the uploadedFiles state to reflect what is now on the server
+      setUploadedFiles(updatedDocuments.map((doc, index) => ({
+        id: doc._id || index, // Use the doc ID from the server if available
+        name: doc.name,
+        // Since we don't have the file object anymore, we can't show a preview
+        // This part needs adjustment based on how you want to display already-uploaded files
+      })));
       
       toast.success('Verification documents submitted successfully!');
     } catch (error) {

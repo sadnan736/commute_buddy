@@ -12,6 +12,9 @@ import AdminDashboard from './pages/AdminDashboard';
 import UserManagement from './pages/UserManagement';
 import VerificationReview from './pages/VerificationReview';
 import Profile from './pages/Profile';
+import ReportManagement from './pages/ReportManagement';
+import Incidents from './pages/Incidents';
+import ActivityHistory from './pages/ActivityHistory';
 
 // Layout component for authenticated pages
 const AppLayout = ({ children }) => {
@@ -65,6 +68,22 @@ function App() {
                   </ProtectedRoute>
                 } 
               />
+              <Route 
+                path="/incidents" 
+                element={
+                  <ProtectedRoute>
+                    <Incidents />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/activity-history" 
+                element={
+                  <ProtectedRoute>
+                    <ActivityHistory />
+                  </ProtectedRoute>
+                } 
+              />
               
               {/* Protected admin routes */}
               <Route 
@@ -88,6 +107,14 @@ function App() {
                 element={
                   <ProtectedRoute requireAdmin={true}>
                     <VerificationReview />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/reports" 
+                element={
+                  <ProtectedRoute requireAdmin={true}>
+                    <ReportManagement />
                   </ProtectedRoute>
                 } 
               />

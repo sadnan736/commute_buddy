@@ -37,7 +37,13 @@ const userSchema = new mongoose.Schema({
   },
 
   verifiedDocuments: {
-    type: [String], // filenames or URLs
+    type: [
+      {
+        name: String,
+        data: Buffer, // This will store the actual file content
+        contentType: String,
+      },
+    ],
     default: [],
   },
 

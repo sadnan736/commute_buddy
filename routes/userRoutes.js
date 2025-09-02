@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/users");
 const authenticate = require("../middleware/auth");
 const authorize = require("../middleware/authorize");
+const upload = require("../middleware/upload");
 
 const router = express.Router();
 
@@ -108,28 +109,45 @@ router.put("/:id/notifications", authenticate, async (req, res) => {
 
 
 //Submitting Documents
-router.post("/:id/verify", authenticate, async (req, res) => {
+router.post("/verify", authenticate, upload.array("documents", 5), async (req, res) => {
   try {
-    const { documents } = req.body; // e.g., array of file URLs/names
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No documents were uploaded." });
+    }
+
+    const documentsToStore = req.files.map((file) => ({
+      name: file.originalname,
+      data: file.buffer, // Get the file content from the buffer
+      contentType: file.mimetype,
+    }));
+
     const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { 
-        verifiedDocuments: documents, 
+      req.user.id, // Use ID from authenticated user for security
+      {
+        $push: { verifiedDocuments: { $each: documentsToStore } },
         isVerified: false,
         verificationStatus: "pending",
-        verificationSubmittedAt: new Date()
+        verificationSubmittedAt: new Date(),
       },
       { new: true }
-    ).select("-password");
-    res.json({ message: "Verification documents submitted", user });
+    ).select("-password -verifiedDocuments"); // Exclude all verifiedDocuments from response
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ message: "Verification documents submitted successfully", user });
   } catch (err) {
-    res.status(500).json({ error: "Server error" });
+    console.error(err);
+    if (err.message.startsWith("Error: File upload only supports")) {
+      return res.status(400).json({ error: err.message });
+    }
+    res.status(500).json({ error: "Server error during file upload" });
   }
 });
 
 
-
-// GET 
+// GET
 router.get("/:id/followed-routes", authenticate, async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("followedRoutes");
@@ -141,7 +159,7 @@ router.get("/:id/followed-routes", authenticate, async (req, res) => {
 
 
 
-// PUT 
+// PUT
 router.put("/:id/followed-routes", authenticate, async (req, res) => {
   try {
     const { routes } = req.body; // array of route names
@@ -158,7 +176,7 @@ router.put("/:id/followed-routes", authenticate, async (req, res) => {
 
 
 
-// DELETE 
+// DELETE
 router.delete("/:id/followed-routes/:rid", authenticate, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -187,7 +205,7 @@ router.get("/:id/preferred-regions", authenticate, async (req, res) => {
 
 
 
-// PUT 
+// PUT
 router.put("/:id/preferred-regions", authenticate, async (req, res) => {
   try {
     const { regions } = req.body; // array of region names

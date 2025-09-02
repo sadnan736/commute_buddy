@@ -9,7 +9,9 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  ArrowRight
+  ArrowRight,
+  ShieldAlert,
+  Activity
 } from 'lucide-react';
 
 const Dashboard = () => {
@@ -29,6 +31,13 @@ const Dashboard = () => {
       icon: Users,
       link: '/admin/users',
       color: 'bg-indigo-500'
+    },
+    {
+      title: 'Report Management',
+      description: 'Review and manage user reports',
+      icon: ShieldAlert,
+      link: '/admin/reports',
+      color: 'bg-rose-500'
     }
   ];
 
@@ -152,6 +161,13 @@ const Dashboard = () => {
       icon: FileCheck,
       link: '/VerificationCenter',
       color: 'bg-primary-500'
+    },
+    {
+      title: 'Activity History',
+      description: 'View all your submitted reports and their status',
+      icon: Activity,
+      link: '/activity-history',
+      color: 'bg-blue-500'
     },
     {
       title: 'Profile Settings',

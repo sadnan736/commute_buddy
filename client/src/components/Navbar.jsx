@@ -5,13 +5,16 @@ import {
   User, 
   Settings, 
   Shield, 
+  ShieldAlert,
   LogOut, 
   Menu, 
   X,
   Home,
   FileCheck,
   Users,
-  UserCog
+  UserCog,
+  Megaphone,
+  Activity
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -32,11 +35,13 @@ const Navbar = () => {
 
   const navItems = [
     { name: 'Home', path: '/dashboard', icon: Home },
+    { name: 'Incidents', path: '/incidents', icon: Megaphone },
   ];
 
   const adminNavItems = [
     { name: 'Admin Dashboard', path: '/admin', icon: Shield },
     { name: 'User Management', path: '/admin/users', icon: Users },
+    { name: 'Report Management', path: '/admin/reports', icon: ShieldAlert },
   ];
 
   return (
@@ -133,6 +138,15 @@ const Navbar = () => {
                   >
                     <User className="w-4 h-4 mr-2" />
                     Profile
+                  </Link>
+                  
+                  <Link
+                    to="/activity-history"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => setIsProfileMenuOpen(false)}
+                  >
+                    <Activity className="w-4 h-4 mr-2" />
+                    Activity History
                   </Link>
                   
                   <Link

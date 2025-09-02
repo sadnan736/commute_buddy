@@ -80,8 +80,12 @@ export const profileService = {
     return response.data;
   },
 
-  submitVerification: async (id, documents) => {
-    const response = await api.post(`/users/${id}/verify`, { documents });
+  submitVerification: async (formData) => {
+    const response = await api.post(`/users/verify`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   },
 
@@ -107,6 +111,26 @@ export const profileService = {
 
   updatePreferredRegions: async (id, regions) => {
     const response = await api.put(`/users/${id}/preferred-regions`, { regions });
+    return response.data;
+  },
+};
+
+// Report Service
+export const reportService = {
+  getMyReports: async (params = {}) => {
+    const { sort = 'createdAt', limit = 50, page = 1 } = params;
+    const response = await api.get(`/reports/my-reports?sort=${sort}&limit=${limit}&page=${page}`);
+    return response.data;
+  },
+
+  createReport: async (reportData) => {
+    const response = await api.post('/reports', reportData);
+    return response.data;
+  },
+
+  getAllReports: async (params = {}) => {
+    const queryParams = new URLSearchParams(params).toString();
+    const response = await api.get(`/reports?${queryParams}`);
     return response.data;
   },
 };
@@ -140,6 +164,22 @@ export const adminService = {
 
   getAllUsers: async () => {
     const response = await api.get('/admin/users');
+    return response.data;
+  },
+
+  // Report Management
+  getReports: async () => {
+    const response = await api.get('/admin/reports');
+    return response.data;
+  },
+
+  updateReport: async (reportId, data) => {
+    const response = await api.put(`/admin/reports/${reportId}`, data);
+    return response.data;
+  },
+
+  deleteReport: async (reportId) => {
+    const response = await api.delete(`/admin/reports/${reportId}`);
     return response.data;
   },
 };

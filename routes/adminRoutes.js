@@ -1,5 +1,6 @@
 const express = require("express");
 const User = require("../models/users");
+const Report = require("../models/reports");
 const authenticate = require("../middleware/auth");
 const authorize = require("../middleware/authorize");
 
@@ -20,6 +21,30 @@ router.get("/pending-verifications", authenticate, authorize("admin"), async (re
   } catch (err) {
     res.status(500).json({ error: "Server error" });
   }
+});
+
+// GET /api/admin/verification/document/:userId/:docId - Get a specific verification document
+router.get("/verification/document/:userId/:docId", authenticate, authorize("admin"), async (req, res) => {
+    try {
+      const user = await User.findById(req.params.userId).select("verifiedDocuments");
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+  
+      const doc = user.verifiedDocuments.id(req.params.docId);
+      if (!doc) {
+        return res.status(404).json({ error: "Document not found" });
+      }
+  
+      // Send the file back to the client
+      res.set("Content-Type", doc.contentType);
+      res.set("Content-Disposition", `inline; filename="${doc.name}"`);
+      res.send(doc.data);
+  
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Server error retrieving document" });
+    }
 });
 
 // GET /api/admin/verification/:userId - Get specific user's verification details
@@ -146,6 +171,58 @@ router.put("/users/:id/role", authenticate, authorize("admin"), async (req, res)
     }
     
     res.json({ message: "Role updated", user: updated });
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Report Management Routes
+
+// GET /api/admin/reports - Get all reports
+router.get("/reports", authenticate, authorize("admin"), async (req, res) => {
+  try {
+    const reports = await Report.find({}).sort({ createdAt: -1 });
+    res.json(reports);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// PUT /api/admin/reports/:id - Update a report
+router.put("/reports/:id", authenticate, authorize("admin"), async (req, res) => {
+  try {
+    const allowedFields = ["type", "severity", "description"];
+    const updates = {};
+    for (const key of allowedFields) {
+      if (req.body[key] !== undefined) updates[key] = req.body[key];
+    }
+
+    const updatedReport = await Report.findByIdAndUpdate(
+      req.params.id,
+      updates,
+      { new: true }
+    );
+
+    if (!updatedReport) {
+      return res.status(404).json({ error: "Report not found" });
+    }
+
+    res.json({ message: "Report updated successfully", report: updatedReport });
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// DELETE /api/admin/reports/:id - Delete a report
+router.delete("/reports/:id", authenticate, authorize("admin"), async (req, res) => {
+  try {
+    const deletedReport = await Report.findByIdAndDelete(req.params.id);
+
+    if (!deletedReport) {
+      return res.status(404).json({ error: "Report not found" });
+    }
+
+    res.json({ message: "Report deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
   }
