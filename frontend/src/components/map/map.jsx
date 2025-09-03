@@ -71,13 +71,6 @@ export default function Maps() {
 
 
         
-        <div>
-          <h3>Filters</h3>
-          <div className="filter-btn">Accidents</div>
-          <div className="filter-btn">Congestion</div>
-          <div className="filter-btn">Hazards</div>
-          <div className="filter-btn">Events</div>
-        </div>
 
         <div className="sort-section">
           <h3>Sort By</h3>

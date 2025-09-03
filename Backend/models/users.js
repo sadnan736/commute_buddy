@@ -43,8 +43,9 @@ const userSchema = new mongoose.Schema({
   savedPlaces:{
     type: Map,
     of: new mongoose.Schema({
-      lat: { type: Number, required: true },
-      lng: { type: Number, required: true }
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true },
+    wayId: { type: String, required: true }, 
     }),
     default: {}
   }

@@ -6,6 +6,8 @@
 import L from "leaflet";
 import axios from "axios";
 delete L.Icon.Default.prototype._getIconUrl;
+import graph from "../../assets/graph/dhaka.graph.json";
+
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "images/marker-icon-2x.png",
@@ -18,6 +20,7 @@ L.Icon.Default.mergeOptions({
 
 const token = localStorage.getItem("token");
 const userId = localStorage.getItem("userId");
+let selectedWayId = null;
 
 
 
@@ -82,14 +85,15 @@ async function fetchReports(activeOnly = true) {
 }
 
 
-async function save_place(locationName, coords) {
-  try {
+async function save_place(locationName, coords, selected_id) {
+  try { 
     const res = await axios.post(
       `http://localhost:1477/api/map/${userId}/saved-places`,
       {
         locationName: locationName,
         lat: coords.lat,
         lng: coords.lng,
+        wayId : selected_id,
       },
       axiosConfig
     );
@@ -114,6 +118,55 @@ async function deleteSavedPlace(locationName) {
   } catch (err) {
     console.error("Error deleting location:", err.response?.data || err.message);
   }
+}
+
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371000; // meters
+  const toRad = (x) => (x * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+function pointToSegmentDist(lat, lng, p1, p2) {
+  const A = [lat, lng];
+  const B = [p1[0], p1[1]];
+  const C = [p2[0], p2[1]];
+
+  const AB = [C[0] - B[0], C[1] - B[1]];
+  const AP = [A[0] - B[0], A[1] - B[1]];
+  const ab2 = AB[0] ** 2 + AB[1] ** 2;
+  const t = Math.max(0, Math.min(1, (AP[0] * AB[0] + AP[1] * AB[1]) / ab2));
+
+  const closest = [B[0] + AB[0] * t, B[1] + AB[1] * t];
+  return {
+    dist: haversine(A[0], A[1], closest[0], closest[1]),
+    snapped: closest
+  };
+}
+
+//  road snap
+export function snapToRoad(lat, lng, graph, threshold = 30) {
+  let best = { dist: Infinity, snapped: null, wayId: null };
+
+  for (const fromNode in graph.adj) {
+    for (const [toNode, , , , wayId] of graph.adj[fromNode]) {
+      const p1 = graph.nodes[fromNode];
+      const p2 = graph.nodes[toNode];
+      if (!p1 || !p2) continue;
+
+      const { dist, snapped } = pointToSegmentDist(lat, lng, p1, p2);
+      if (dist < best.dist) {
+        best = { dist, snapped, wayId };
+      }
+    }
+  }
+
+  return best.dist <= threshold ? best : null;
 }
 
 
@@ -204,8 +257,8 @@ const elDetailNoPhoto = document.getElementById("detailNoPhoto");
 
   mapInstance = L.map(mapEl, {
     center: [23.8103, 90.4125],
-    zoom: 12,
-    minZoom: 11,
+    zoom: 15,
+    minZoom: 14,
     maxBounds: dhakaBounds,
     maxBoundsViscosity: 1.0,
   });
@@ -231,6 +284,8 @@ fetch_saved_places().then(() => {
 
   function onMapClick(e) {
     selectedCoords = e.latlng;
+    const { lat, lng } = e.latlng;
+    const snap = snapToRoad(lat, lng, graph);
 
     if (currentMarker) {
       try {
@@ -238,10 +293,20 @@ fetch_saved_places().then(() => {
       } catch (err) {}
     }
 
+    if (snap) {
+    
+    selectedCoords = { lat: snap.snapped[0], lng: snap.snapped[1] };
+    selectedWayId = snap.wayId;
     currentMarker = L.marker(selectedCoords).addTo(mapInstance);
 
     if (saveBtn) saveBtn.style.display = "block";
     if (reportBtn) reportBtn.style.display = "block";
+  } else {
+    alert("No road nearby. Try clicking closer to a road.");
+  }
+
+
+    
   }
 
   mapInstance.on("click", onMapClick);
@@ -298,7 +363,9 @@ function onCloseDelOverlay(){
     }
   }
 
+
   function onConfirmSave() {
+    console.log(`selectedCoords: ${selectedCoords}`)
     const nameEl = locationInput;
     if (!nameEl) return;
     const locationName = nameEl.value.trim();
@@ -308,15 +375,16 @@ function onCloseDelOverlay(){
       return;
     }
     if (!selectedCoords) {
-      window.alert("No location selected on map.");
-      return;
-    }
-
+    window.alert("No location selected on the map.");
+    return;
+  }
+    console.log(selectedWayId)
     saved_places[locationName] = {
       lat: selectedCoords.lat,
       lng: selectedCoords.lng,
+      wayId: selectedWayId,
     };
-    save_place(locationName, selectedCoords);
+    save_place(locationName, selectedCoords,selectedWayId);
 
     updateSavedPlacesUI();
 

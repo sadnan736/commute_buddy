@@ -20,9 +20,9 @@ router.get("/:id/saved-places", authenticate, async (req, res) => {
 
 router.post("/:id/saved-places", authenticate, async (req, res) => {
   try {
-    const { locationName, lat, lng } = req.body;
+    const { locationName, lat, lng, wayId } = req.body;
 
-    if (!locationName || lat === undefined || lng === undefined) {
+    if (!locationName || lat === undefined || lng === undefined || wayId === undefined) {
       return res
         .status(400)
         .json({ error: "locationName, lat and lng are required" });
@@ -32,12 +32,11 @@ router.post("/:id/saved-places", authenticate, async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    console.log( { lat, lng })
-    user.savedPlaces.set(locationName, { lat, lng });
-
+    user.savedPlaces.set(locationName, { lat, lng, wayId });
+    
     await user.save();
-
     res.json({ savedPlaces: user.savedPlaces });
+    console.log(res)
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
