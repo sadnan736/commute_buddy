@@ -15,6 +15,7 @@ import Profile from './pages/Profile';
 import ReportManagement from './pages/ReportManagement';
 import Incidents from './pages/Incidents';
 import ActivityHistory from './pages/ActivityHistory';
+import Map from './pages/Map';
 
 // Layout component for authenticated pages
 const AppLayout = ({ children }) => {
@@ -81,6 +82,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <ActivityHistory />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/map" 
+                element={
+                  <ProtectedRoute>
+                    <Map />
                   </ProtectedRoute>
                 } 
               />

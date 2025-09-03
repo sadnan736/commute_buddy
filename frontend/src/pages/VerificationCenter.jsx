@@ -20,6 +20,7 @@ const VerificationCenter = () => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingStatus, setIsFetchingStatus] = useState(true);
   const [verificationData, setVerificationData] = useState(null);
 
   useEffect(() => {
@@ -27,8 +28,12 @@ const VerificationCenter = () => {
   }, [user]);
 
   const fetchVerificationStatus = async () => {
-    if (!user) return;
+    if (!user) {
+      setIsFetchingStatus(false);
+      return;
+    }
     
+    setIsFetchingStatus(true);
     try {
       const response = await profileService.getProfile(user._id);
       setVerificationData(response);
@@ -42,6 +47,8 @@ const VerificationCenter = () => {
       }
     } catch (error) {
       toast.error('Failed to fetch verification status');
+    } finally {
+      setIsFetchingStatus(false);
     }
   };
 
@@ -241,24 +248,32 @@ const VerificationCenter = () => {
                 Verification Status
               </h2>
               
-              <div className="flex items-center space-x-3 mb-4">
-                {getStatusIcon(verificationData?.verificationStatus)}
-                <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(verificationData?.verificationStatus)}`}>
-                  {getStatusText(verificationData?.verificationStatus)}
-                </span>
-              </div>
-
-              {verificationData?.verificationSubmittedAt && (
-                <div className="text-sm text-gray-600 mb-4">
-                  <strong>Submitted:</strong> {new Date(verificationData.verificationSubmittedAt).toLocaleDateString()}
+              {isFetchingStatus ? (
+                <div className="flex justify-center items-center h-24">
+                  <LoadingSpinner />
                 </div>
-              )}
+              ) : (
+                <>
+                  <div className="flex items-center space-x-3 mb-4">
+                    {getStatusIcon(verificationData?.verificationStatus)}
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(verificationData?.verificationStatus)}`}>
+                      {getStatusText(verificationData?.verificationStatus)}
+                    </span>
+                  </div>
 
-              {verificationData?.verificationComments && (
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="font-medium text-gray-900 mb-2">Admin Feedback:</h3>
-                  <p className="text-sm text-gray-700">{verificationData.verificationComments}</p>
-                </div>
+                  {verificationData?.verificationSubmittedAt && (
+                    <div className="text-sm text-gray-600 mb-4">
+                      <strong>Submitted:</strong> {new Date(verificationData.verificationSubmittedAt).toLocaleDateString()}
+                    </div>
+                  )}
+
+                  {verificationData?.verificationComments && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h3 className="font-medium text-gray-900 mb-2">Admin Feedback:</h3>
+                      <p className="text-sm text-gray-700">{verificationData.verificationComments}</p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>

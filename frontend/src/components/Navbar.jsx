@@ -14,7 +14,8 @@ import {
   Users,
   UserCog,
   Megaphone,
-  Activity
+  Activity,
+  MapPin
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -36,6 +37,7 @@ const Navbar = () => {
   const navItems = [
     { name: 'Home', path: '/dashboard', icon: Home },
     { name: 'Incidents', path: '/incidents', icon: Megaphone },
+    { name: 'Map', path: '/map', icon: MapPin },
   ];
 
   const adminNavItems = [
