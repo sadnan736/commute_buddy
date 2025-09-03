@@ -5,7 +5,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/users");
 const authenticate = require("../middleware/auth");
-const multer = require("multer");
+const authorize = require("../middleware/authorize");
+const upload = require("../middleware/upload");
 
 const router = express.Router();
 
@@ -13,13 +14,6 @@ const router = express.Router();
 const uploadDir = path.join(__dirname, "../uploads");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 console.log("Uploads folder ready:", uploadDir);
-
-// Multer setup
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-});
-const upload = multer({ storage });
 
 // ------------------ REGISTER ------------------
 router.post("/register", upload.single("avatar"), async (req, res) => {
@@ -68,9 +62,6 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
-
-module.exports = router;
-
 
 // ------------------ GET USER ------------------
 router.get("/:id", authenticate, async (req, res) => {
@@ -144,17 +135,40 @@ router.put("/:id/notifications", authenticate, async (req, res) => {
 });
 
 // ------------------ SUBMIT DOCUMENTS ------------------
-router.post("/:id/verify", authenticate, async (req, res) => {
+router.post("/verify", authenticate, upload.array("documents", 5), async (req, res) => {
   try {
-    const { documents = [] } = req.body;
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No documents were uploaded." });
+    }
+
+    const documentsToStore = req.files.map((file) => ({
+      name: file.originalname,
+      data: file.buffer, // Get the file content from the buffer
+      contentType: file.mimetype,
+    }));
+
     const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { verifiedDocuments: documents, isVerified: false },
+      req.user.id, // Use ID from authenticated user for security
+      {
+        $push: { verifiedDocuments: { $each: documentsToStore } },
+        isVerified: false,
+        verificationStatus: "pending",
+        verificationSubmittedAt: new Date(),
+      },
       { new: true }
-    ).select("-password");
-    res.json({ message: "Verification documents submitted", user });
+    ).select("-password -verifiedDocuments"); // Exclude all verifiedDocuments from response
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ message: "Verification documents submitted successfully", user });
   } catch (err) {
-    res.status(500).json({ error: "Server error" });
+    console.error(err);
+    if (err.message.startsWith("Error: File upload only supports")) {
+      return res.status(400).json({ error: err.message });
+    }
+    res.status(500).json({ error: "Server error during file upload" });
   }
 });
 

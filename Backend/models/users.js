@@ -7,6 +7,12 @@ const userSchema = new mongoose.Schema({
 
   password: { type: String, required: true },
 
+  role: {
+    type: String,
+    enum: ["user", "verifiedReporter", "moderator", "admin"],
+    default: "user",
+  },
+
   avatar: { type: String},
 
   homeLocation: { type: String},
@@ -31,7 +37,13 @@ const userSchema = new mongoose.Schema({
   },
 
   verifiedDocuments: {
-    type: [String], // filenames or URLs
+    type: [
+      {
+        name: String,
+        data: Buffer, // This will store the actual file content
+        contentType: String,
+      },
+    ],
     default: [],
   },
 
@@ -40,14 +52,25 @@ const userSchema = new mongoose.Schema({
     default: false,
   },
 
-  savedPlaces:{
-    type: Map,
-    of: new mongoose.Schema({
-      lat: { type: Number, required: true },
-      lng: { type: Number, required: true }
-    }),
-    default: {}
-  }
+  verificationStatus: { 
+    type: String, 
+    enum: ["none", "pending", "approved", "rejected"],
+    default: "none" 
+  },
+
+  verificationSubmittedAt: { type: Date },
+
+  verificationComments: { type: String },
+
+  savedPlaces: {type: [
+      {
+        name: String,
+        address: String,
+        coordinates: { lat: Number, lng: Number },
+      }
+    ],
+    default: [],
+  },
 });
 
 module.exports = mongoose.model("User", userSchema);
