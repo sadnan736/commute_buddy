@@ -26,7 +26,7 @@ function DashboardPage() {
 
     const axiosConfig = { headers: { Authorization: `Bearer ${token}` } };
 
-    axios.get(`http://localhost:1477/api/users/${userId}`, axiosConfig)
+    axios.get(`http://localhost:1565/api/users/${userId}`, axiosConfig)
       .then(res => {
         const data = res.data;
         setUser(data);
