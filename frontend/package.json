@@ -12,8 +12,10 @@
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
+    "@vitejs/plugin-react": "^5.0.0",
     "autoprefixer": "^10.4.21",
     "axios": "^1.11.0",
+    "leaflet": "^1.9.4",
     "lucide-react": "^0.539.0",
     "postcss": "^8.5.6",
     "react": "^19.1.1",
@@ -22,12 +24,11 @@
     "react-router-dom": "^7.8.0",
     "tailwindcss": "^3.4.17",
     "vite": "^7.1.4",
-    "@vitejs/plugin-react": "^5.0.0",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "vite",
-    "build": "tsc && vite build"
+    "build": "vite build"
   },
   "eslintConfig": {
     "extends": [
@@ -46,7 +47,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
   }
 }

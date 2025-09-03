@@ -1,0 +1,21 @@
+{
+  "name": "commute-buddy",
+  "version": "1.0.0",
+  "description": "A full-stack commute buddy application",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "Backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd Backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "npm run build:frontend",
+    "build:frontend": "cd frontend && npm run build",
+    "install:all": "npm install && cd frontend && npm install && cd ../Backend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
