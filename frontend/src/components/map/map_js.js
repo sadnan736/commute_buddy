@@ -53,7 +53,7 @@ async function fetch_saved_places() {
   }
 }
 
-async function create_report({ type, severity, validity, coords, description, reportedBy  }) {
+async function create_report({ type, severity, validity, coords, description, reportedBy,wayId  }) {
   try {
     const res = await axios.post(
       "http://localhost:1477/api/reports",
@@ -65,6 +65,7 @@ async function create_report({ type, severity, validity, coords, description, re
         reportedByUID: userId,
         location: { lat: coords.lat, lng: coords.lng },
         description,
+        wayId,
         // photoUrl: undefined
       },
       axiosConfig
@@ -514,6 +515,7 @@ fetchUserName(userId).then((name) => {
     validity,
     coords: selectedCoords,
     description,
+    wayId : selectedWayId,
     reportedBy: reporterName,
   })
     .then((created) => {

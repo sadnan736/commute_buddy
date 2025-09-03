@@ -43,7 +43,7 @@ const { notifyNearbyUsers } = require("../utils/notifications");
 
 router.post("/", async (req, res) => {
   try {
-    const { type, severity, validity, reportedBy,reportedByUID, location, description, photoUrl } = req.body || {};
+    const { type, severity, validity, reportedBy,reportedByUID, location, description, wayID, photoUrl } = req.body || {};
 
     // validation
     if (!type || !severity || !description || !reportedBy) {
@@ -55,7 +55,7 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "validity (minutes) must be a positive number" });
     }
 
-    if (!location || typeof location.lat !== "number" || typeof location.lng !== "number") {
+    if (!location || typeof location.lat !== "number" || typeof location.lng !== "number" || !wayID ) {
       return res.status(400).json({ error: "location.lat and location.lng are required numbers" });
     }
 
@@ -67,6 +67,7 @@ router.post("/", async (req, res) => {
       reportedByUID: String(reportedByUID),
       location: { lat: location.lat, lng: location.lng },
       description,
+      wayId,
       ...(photoUrl ? { photoUrl } : {}),
     });
 
