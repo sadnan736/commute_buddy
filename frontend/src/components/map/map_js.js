@@ -66,7 +66,7 @@ async function create_report({ type, severity, validity, coords, description, re
         location: { lat: coords.lat, lng: coords.lng },
         description,
         wayId,
-        // photoUrl: undefined
+        photoUrl: undefined
       },
       axiosConfig
     );
@@ -472,10 +472,6 @@ function onCloseReportOverlay() {
 }
 
 function onConfirmReport() {
-  if (!selectedCoords) {
-    alert("No location selected.");
-    return;
-  }
   const type = reportTypeEl?.value.trim();
   const severity = reportSeverityEl?.value.trim();
   const validity = Number(reportValidityEl?.value);
@@ -520,10 +516,9 @@ fetchUserName(userId).then((name) => {
   })
     .then((created) => {
       addOneReport(created)
-      resetReportForm();
     })
-    .catch(() => {
-      console.log("Failed to submit report");
+    .catch((err) => {
+      console.log("Failed to submit report", err);
     });
 });
 

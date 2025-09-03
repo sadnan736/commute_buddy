@@ -43,8 +43,9 @@ const { notifyNearbyUsers } = require("../utils/notifications");
 
 router.post("/", async (req, res) => {
   try {
-    const { type, severity, validity, reportedBy,reportedByUID, location, description, wayID, photoUrl } = req.body || {};
-
+    const { type, severity, validity, reportedBy,reportedByUID, location, description, wayId, photoUrl } = req.body || {};
+    
+    console.log(wayId)
     // validation
     if (!type || !severity || !description || !reportedBy) {
       return res.status(400).json({ error: "type, severity, description, and reportedBy are required" });
@@ -55,8 +56,8 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "validity (minutes) must be a positive number" });
     }
 
-    if (!location || typeof location.lat !== "number" || typeof location.lng !== "number" || !wayID ) {
-      return res.status(400).json({ error: "location.lat and location.lng are required numbers" });
+    if (!location || typeof location.lat !== "number" || typeof location.lng !== "number" || !wayId ) {
+      return res.status(400).json({ error: `location.lat and location.lng are required numbers ${location} ${location.lat} ${location.lng} $wayId}` });
     }
 
     const report = await Report.create({
@@ -70,11 +71,9 @@ router.post("/", async (req, res) => {
       wayId,
       ...(photoUrl ? { photoUrl } : {}),
     });
-
-
-     await notifyNearbyUsers(report);
-
+    await notifyNearbyUsers(report);
     return res.status(201).json(report);
+
   } catch (err) {
     console.error("Create report error:", err);
     return res.status(500).json({ error: "Server error" });

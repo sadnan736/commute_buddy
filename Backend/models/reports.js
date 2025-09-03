@@ -65,4 +65,6 @@ const reportSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+reportSchema.index({ wayId: 1, type: 1, expiresAt: 1 });
+
 module.exports = mongoose.model("Report", reportSchema);
