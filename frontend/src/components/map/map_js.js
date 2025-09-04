@@ -447,10 +447,7 @@ function onCloseDelOverlay(){
       window.alert("Please enter a location name.");
       return;
     }
-    if (!selectedCoords) {
-    window.alert("No location selected on the map.");
-    return;
-  }
+    
     console.log(selectedWayId)
     saved_places[locationName] = {
       lat: selectedCoords.lat,
@@ -537,10 +534,7 @@ function onCloseDelOverlay(){
 
 
   function onReportBtnClick() {
-  if (!selectedCoords) {
-    alert("Select a location on the map first.");
-    return;
-  }
+  
   if (reportLatEl) reportLatEl.textContent = selectedCoords.lat.toFixed(6);
   if (reportLngEl) reportLngEl.textContent = selectedCoords.lng.toFixed(6);
 
