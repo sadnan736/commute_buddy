@@ -250,7 +250,50 @@ body,
 .report-btn:hover {
   background-color: #2f66be;
 }
+.choose-btn,
+.deselect-btn {
+  position: absolute;
+  right: 20px;
+  width: 150px;
+  background-color: #3b82f6;
+  color: #fff;
+  padding: 11px 19px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 1002;
+}
+.choose-btn:hover { background-color: #2f66be; }
 
+/* Put these ABOVE your Save (60px) and Delete (20px) buttons */
+.choose-btn   { bottom: 200px; }
+.deselect-btn { bottom: 160px; background-color: #666; }
+.deselect-btn:hover { background-color: #555; }
+
+/* Dropdown menu for Choose */
+.choose-menu {
+  position: absolute;
+  right: 20px;
+  bottom: 240px; /* above Choose button */
+  background: #222;
+  border-radius: 8px;
+  padding: 8px;
+  z-index: 1003;
+  min-width: 180px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+.choose-item {
+  background: #2a2a2a;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-align: left;
+}
+.choose-item + .choose-item { margin-top: 6px; }
 .overlay {
   display: none; /* hidden by default */
   position: fixed;

@@ -15,12 +15,25 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "/images/marker-shadow.png",
 });
 
+const ETA_marker = L.icon({
+  iconRetinaUrl: "images/eta-marker-icon-2x.png",
+  iconUrl: "images/eta-marker-icon.png",
+  shadowUrl: "images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],      // center-bottom (12 = 25/2)
+  popupAnchor: [0, -36],     // nudge popup up so it sits above the tip
+  shadowSize: [41, 41],
+  shadowAnchor: [12, 41],
+
+});
 
 
 
 const token = localStorage.getItem("token");
 const userId = localStorage.getItem("userId");
 let selectedWayId = null;
+let selectedWayId_start = null
+let selectedWayId_desination = null
 
 
 
@@ -174,7 +187,29 @@ export function snapToRoad(lat, lng, graph, threshold = 30) {
 
 let mapInstance = null;
 let currentMarker = null;
+let start_location_flag = false
+let start_location_marker = null;
+let destination_flag = false
+let destination_marker = null;
 
+
+function setStartLocation(lat, lng) {
+  if (start_location_marker) {
+    mapInstance.removeLayer(start_location_marker);
+  }
+  start_location_marker = L.marker([lat, lng], { icon: ETA_marker })
+    .addTo(mapInstance)
+    .bindPopup("Start Location");
+}
+
+function setDestination(lat, lng) {
+  if (destination_marker) {
+    mapInstance.removeLayer(destination_marker);
+  }
+  destination_marker = L.marker([lat, lng], { icon: ETA_marker })
+    .addTo(mapInstance)
+    .bindPopup("Destination");
+}
 
 
 export default function initMap() {
@@ -229,6 +264,11 @@ const elDetailNoPhoto = document.getElementById("detailNoPhoto");
 
   // report end
 
+  const chooseBtn   = document.getElementById("chooseBtn");
+  const deselectBtn = document.getElementById("deselectBtn");
+  const chooseMenu  = document.getElementById("chooseMenu");
+  const chooseStart = document.getElementById("chooseStart");
+  const chooseDest  = document.getElementById("chooseDest");
 
   const deleteBtn = document.getElementById("deleteLocationBtn");
   const mapEl = document.getElementById("map");
@@ -274,6 +314,12 @@ const elDetailNoPhoto = document.getElementById("detailNoPhoto");
 
 
   let selectedCoords = null;
+  
+  let start_location_coords = null
+  let destination_coords = null
+
+
+
 fetch_saved_places().then(() => {
   updateSavedPlacesUI();
 
@@ -288,20 +334,34 @@ fetch_saved_places().then(() => {
     const { lat, lng } = e.latlng;
     const snap = snapToRoad(lat, lng, graph);
 
-    if (currentMarker) {
-      try {
-        mapInstance.removeLayer(currentMarker);
-      } catch (err) {}
-    }
-
     if (snap) {
     
-    selectedCoords = { lat: snap.snapped[0], lng: snap.snapped[1] };
-    selectedWayId = snap.wayId;
-    currentMarker = L.marker(selectedCoords).addTo(mapInstance);
+    const snappedLatLng = { lat: snap.snapped[0], lng: snap.snapped[1] };
 
-    if (saveBtn) saveBtn.style.display = "block";
+    if (start_location_flag  === true) {
+      if (start_location_marker) try { mapInstance.removeLayer(start_location_marker); } catch{}
+      setStartLocation(snappedLatLng.lat, snappedLatLng.lng);
+      start_location_coords = { ...snappedLatLng };
+      selectedWayId_start = snap.wayId
+     } else if (destination_flag  === true) {
+      if (destination_marker) try { mapInstance.removeLayer(destination_marker); } catch {}
+      
+      setDestination(snappedLatLng.lat, snappedLatLng.lng);
+      destination_coords = { ...snappedLatLng };
+      selectedWayId_desination = snap.wayId
+    } else {
+      if (currentMarker) {
+          try {
+            mapInstance.removeLayer(currentMarker);
+          } catch (err) {}
+        }
+      selectedCoords = { lat: snap.snapped[0], lng: snap.snapped[1] };
+      selectedWayId = snap.wayId;
+      currentMarker = L.marker(selectedCoords).addTo(mapInstance);
+      if (saveBtn) saveBtn.style.display = "block";
     if (reportBtn) reportBtn.style.display = "block";
+    }
+    
   } else {
     alert("No road nearby. Try clicking closer to a road.");
   }
@@ -412,15 +472,29 @@ function onCloseDelOverlay(){
       btn.style.cursor = "pointer";
 
       btn.addEventListener("click", function () {
-        if (currentMarker) {
+      const { lat, lng } = coords;
+
+       
+
+        if (start_location_flag  === true) {
+          if (start_location_marker) try { mapInstance.removeLayer(start_location_marker); } catch {}
+          setStartLocation(lat, lng);
+        } else if (destination_flag  === true) {
+          if (destination_marker) try { mapInstance.removeLayer(destination_marker); } catch {}
+           setDestination(lat, lng);
+        } else {
+           if (currentMarker) {
           try {
             mapInstance.removeLayer(currentMarker);
           } catch (err) {}
         }
+          if (currentMarker) { try { mapInstance.removeLayer(currentMarker); } catch {} }
+          currentMarker = L.marker([lat, lng]).addTo(mapInstance);
+          currentMarker.bindPopup(placeName).openPopup();
+        }
 
-        currentMarker = L.marker([coords.lat, coords.lng]).addTo(mapInstance);
-        currentMarker.bindPopup(placeName).openPopup();
-        mapInstance.setView([coords.lat, coords.lng], 15);
+      mapInstance.setView([lat, lng], 15);
+
       });
 
       savedPlacesListEl.appendChild(btn);
@@ -528,7 +602,6 @@ fetchUserName(userId).then((name) => {
   
   onCloseReportOverlay();
 
-  // Optionally hide buttons after submit
   if (reportBtn) reportBtn.style.display = "none";
   if (saveBtn) saveBtn.style.display = "none";
   if (currentMarker) mapInstance.removeLayer(currentMarker);
@@ -776,8 +849,35 @@ if (reportPhotoFileEl) {
     });
   }
 
-  
+  // for ETA
 
+  function showChooseMenu() {
+  if (chooseMenu) chooseMenu.style.display = "block";
+}
+function hideChooseMenu() {
+  if (chooseMenu) chooseMenu.style.display = "none";
+}
+
+function onChooseStart() {
+  start_location_flag = true;
+  destination_flag = false;
+  hideChooseMenu();
+}
+
+function onChooseDest() {
+  start_location_flag = false;
+  destination_flag = true;
+  hideChooseMenu();
+}
+
+function onDeselectClick() {
+  // Exit choose mode; keep any existing start/destination markers on map
+  start_location_flag = false;
+  destination_flag = false;
+  hideChooseMenu();
+}
+
+  
   if (reportBtn) reportBtn.addEventListener("click", onReportBtnClick);
   if (closeReportOverlayBtn) closeReportOverlayBtn.addEventListener("click", onCloseReportOverlay);
   if (confirmReportBtn) confirmReportBtn.addEventListener("click", onConfirmReport);
@@ -790,6 +890,18 @@ if (reportPhotoFileEl) {
   if (confirmSaveBtn) confirmSaveBtn.addEventListener("click", onConfirmSave);
   if (confirmDelBtn) confirmDelBtn.addEventListener("click", onConfirmDel);
   if (deleteBtn) deleteBtn.addEventListener("click", onDelBtnClick);
+
+  if (chooseBtn)   chooseBtn.addEventListener("click", showChooseMenu);
+if (chooseStart) chooseStart.addEventListener("click", onChooseStart);
+if (chooseDest)  chooseDest.addEventListener("click", onChooseDest);
+if (deselectBtn) deselectBtn.addEventListener("click", onDeselectClick);
+
+// Close menu when clicking outside
+document.addEventListener("click", (ev) => {
+  const within = ev.target === chooseBtn || chooseMenu?.contains(ev.target);
+  if (!within) hideChooseMenu();
+});
+
 
   updateSavedPlacesUI();
   document.getElementById("logoutBtnMap").addEventListener("click", () => {

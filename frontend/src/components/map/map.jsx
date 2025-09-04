@@ -98,6 +98,7 @@ export default function Maps() {
           id="saveLocationBtn"
           style={{ display: "none" }}
         >
+          
           Save Location
         </button>
         <button
@@ -107,6 +108,14 @@ export default function Maps() {
         >
           Delete Location
         </button>
+        <button className="choose-btn" id="chooseBtn">Choose</button>
+
+        <div id="chooseMenu" className="choose-menu" style={{ display: "none" }}>
+          <div id="chooseStart" className="choose-item">Start Location</div>
+          <div id="chooseDest"  className="choose-item">Destination</div>
+        </div>
+
+        <button className="deselect-btn" id="deselectBtn">Deselect</button>
       </div>
 
 
