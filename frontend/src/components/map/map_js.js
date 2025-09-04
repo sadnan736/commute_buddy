@@ -7,6 +7,7 @@ import L from "leaflet";
 import axios from "axios";
 delete L.Icon.Default.prototype._getIconUrl;
 import graph from "../../assets/graph/dhaka.graph.json";
+import { computeRouteFromCoords } from "./a_star";
 
 
 L.Icon.Default.mergeOptions({
@@ -34,6 +35,8 @@ const userId = localStorage.getItem("userId");
 let selectedWayId = null;
 let selectedWayId_start = null
 let selectedWayId_desination = null
+
+let routeLayer = null
 
 
 
@@ -194,6 +197,9 @@ let destination_marker = null;
 
 
 function setStartLocation(lat, lng) {
+  
+  document.getElementById("etaBadge").style.display = "none";
+  if (routeLayer) { try { mapInstance.removeLayer(routeLayer); } catch {} }
   if (start_location_marker) {
     mapInstance.removeLayer(start_location_marker);
   }
@@ -203,6 +209,8 @@ function setStartLocation(lat, lng) {
 }
 
 function setDestination(lat, lng) {
+  document.getElementById("etaBadge").style.display = "none";
+  if (routeLayer) { try { mapInstance.removeLayer(routeLayer); } catch {} }
   if (destination_marker) {
     mapInstance.removeLayer(destination_marker);
   }
@@ -231,6 +239,9 @@ export default function initMap() {
 
 const detailsOverlay = document.getElementById("reportDetailsOverlay");
 const closeDetailsOverlayBtn = document.getElementById("closeDetailsOverlay");
+
+const calcBtn  = document.getElementById("calcEtaBtn");
+
 
 const elDetailType = document.getElementById("detailType");
 const elDetailSeverity = document.getElementById("detailSeverity");
@@ -339,16 +350,17 @@ fetch_saved_places().then(() => {
     const snappedLatLng = { lat: snap.snapped[0], lng: snap.snapped[1] };
 
     if (start_location_flag  === true) {
-      if (start_location_marker) try { mapInstance.removeLayer(start_location_marker); } catch{}
       setStartLocation(snappedLatLng.lat, snappedLatLng.lng);
       start_location_coords = { ...snappedLatLng };
       selectedWayId_start = snap.wayId
+
+      refreshCalcButton()
+
      } else if (destination_flag  === true) {
-      if (destination_marker) try { mapInstance.removeLayer(destination_marker); } catch {}
-      
       setDestination(snappedLatLng.lat, snappedLatLng.lng);
       destination_coords = { ...snappedLatLng };
       selectedWayId_desination = snap.wayId
+      refreshCalcButton()
     } else {
       if (currentMarker) {
           try {
@@ -477,11 +489,14 @@ function onCloseDelOverlay(){
        
 
         if (start_location_flag  === true) {
-          if (start_location_marker) try { mapInstance.removeLayer(start_location_marker); } catch {}
           setStartLocation(lat, lng);
+          start_location_coords = {lat: lat, lng: lng}
+          refreshCalcButton()
+          
         } else if (destination_flag  === true) {
-          if (destination_marker) try { mapInstance.removeLayer(destination_marker); } catch {}
            setDestination(lat, lng);
+          destination_coords = {lat: lat, lng: lng}
+          refreshCalcButton()
         } else {
            if (currentMarker) {
           try {
@@ -877,7 +892,49 @@ function onDeselectClick() {
   hideChooseMenu();
 }
 
-  
+
+function refreshCalcButton() {
+  const btn = document.getElementById("calcEtaBtn");
+  if (!btn) return;
+
+  if( start_location_coords && destination_coords){
+  btn.style.display = "block";}
+}
+async function onCalculateETA() {
+  if (!start_location_marker || !destination_marker) {
+    alert("Please set both Start and Destination.");
+    return;
+  }
+
+
+  // Compute route (A*)
+  const result = computeRouteFromCoords(graph, start_location_coords, destination_coords);
+
+  if (!result.coordsPath.length) {
+    if (routeLayer) { try { mapInstance.removeLayer(routeLayer); } catch {} }
+    document.getElementById("etaBadge").style.display = "none";
+    alert("No route found.");
+    return;
+  }
+
+
+  // Draw (replace previous)
+  if (routeLayer) { try { mapInstance.removeLayer(routeLayer); } catch {} }
+  routeLayer = L.polyline(result.coordsPath, { weight: 5, opacity: 0.9 }).addTo(mapInstance);
+  mapInstance.fitBounds(routeLayer.getBounds(), { padding: [40, 40] });
+
+
+  // Show ETA + distance
+  const km = (result.distanceMeters / 1000).toFixed(2);
+  const mins = Math.max(1, Math.round(result.durationSec / 60));
+  const badge = document.getElementById("etaBadge");
+  badge.textContent = `Route: ${km} km • ETA ~ ${mins} min`;
+  badge.style.display = "block";
+
+}
+
+  if (calcBtn) calcBtn.addEventListener("click", onCalculateETA);
+
   if (reportBtn) reportBtn.addEventListener("click", onReportBtnClick);
   if (closeReportOverlayBtn) closeReportOverlayBtn.addEventListener("click", onCloseReportOverlay);
   if (confirmReportBtn) confirmReportBtn.addEventListener("click", onConfirmReport);

@@ -5,6 +5,7 @@ import initMap from "./map_js";
 import "leaflet/dist/leaflet.css";
 import "../../assets/map.css";
 
+
 import Notifications from "./notification";
 
 export default function Maps() {
@@ -116,6 +117,13 @@ export default function Maps() {
         </div>
 
         <button className="deselect-btn" id="deselectBtn">Deselect</button>
+
+        <button id="calcEtaBtn" className="calc-eta-btn" style={{ display: "none" }}>
+          Calculate ETA
+        </button>
+
+        <div id="etaBadge" className="eta-badge" style={{ display: "none" }}></div>
+
       </div>
 
 
