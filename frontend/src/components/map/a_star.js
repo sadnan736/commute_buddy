@@ -1,3 +1,5 @@
+// Haversine in meters
+
 function haversine(lat1, lon1, lat2, lon2) {
   const R = 6371000; // m
   const toRad = (x) => (x * Math.PI) / 180;
@@ -26,11 +28,11 @@ export function nearestNodeId(graph, { lat, lng }) {
   return bestId;
 }
 
-/**
- * A* over the graph
- * graph.adj[fromId] = [ [toId, lengthMeters, speedKph, onewayFlag, wayId], ... ]
- * Returns: { nodePathIds: string[], coordsPath: [lat,lng][], distanceMeters, durationSec }
- */
+
+// A* over the graph
+//  graph.adj[fromId] = [ [toId, lengthMeters, speedKph, onewayFlag, wayId], ... ]
+//  Returns: { nodePathIds: string[], coordsPath: [lat,lng][], distanceMeters, durationSec }
+ 
 export function aStarRoute(graph, startNodeId, goalNodeId) {
   if (!startNodeId || !goalNodeId) {
     return { nodePathIds: [], coordsPath: [], distanceMeters: 0, durationSec: 0 };
