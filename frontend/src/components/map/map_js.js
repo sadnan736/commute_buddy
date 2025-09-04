@@ -582,13 +582,7 @@ function onConfirmReport() {
   }
 
   // For now just log the result
-  console.log("Report ready:", {
-    type,
-    severity,
-    validity,
-    reportedBy: userId,
-    location: { lat: selectedCoords.lat, lng: selectedCoords.lng },description,
-  });
+  console.log("Report ready:");
 
 
 fetchUserName(userId).then((name) => {

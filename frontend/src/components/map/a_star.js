@@ -28,10 +28,27 @@ export function nearestNodeId(graph, { lat, lng }) {
   return bestId;
 }
 
+//  cost = lengthMeters / (speedKph * 1000/3600) ETA RELATEWd
+// h = crow_fly_distance / (max_assumed_speed_m_per_s)
 
 // A* over the graph
 //  graph.adj[fromId] = [ [toId, lengthMeters, speedKph, onewayFlag, wayId], ... ]
 //  Returns: { nodePathIds: string[], coordsPath: [lat,lng][], distanceMeters, durationSec }
+
+// graph.nodes = {
+//   nodeId1: [lat, lng],
+//   nodeId2: [lat, lng],
+//   ...
+// }
+
+// graph.adj = {
+//   fromNodeId: [
+//     [toNodeId, lengthMeters, speedKph, onewayFlag, wayId],
+//     ...
+//   ],
+//   ...
+// }
+
  
 export function aStarRoute(graph, startNodeId, goalNodeId) {
   if (!startNodeId || !goalNodeId) {
