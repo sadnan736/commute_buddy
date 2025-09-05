@@ -18,7 +18,7 @@ router.get("/:id/saved-places", authenticate, async (req, res) => {
   }
 });
 
-router.post("/:id/saved-places", authenticate, async (req, res) => {
+router.post("/:id/saved-places",  async (req, res) => {
   try {
     const { locationName, lat, lng, wayId } = req.body;
 
@@ -35,8 +35,7 @@ router.post("/:id/saved-places", authenticate, async (req, res) => {
     user.savedPlaces.set(locationName, { lat, lng, wayId });
     
     await user.save();
-    res.json({ savedPlaces: user.savedPlaces });
-    console.log(res)
+    res.json({ [locationName] :{ lat, lng, wayId }});
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
