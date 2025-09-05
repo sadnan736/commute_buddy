@@ -1,86 +1,99 @@
-body{
-    display: flex;
-    flex-direction: row;
-    background-color:rgb(4, 2, 8) ;
-} 
-
+body {
+  display: flex;
+  flex-direction: row;
+  background-color: rgb(4, 2, 8);
+}
 
 .profile-container {
-      margin-left:500px;
-      padding: 30px;
-      background: #032a63;
-      color: aqua;
-      border-radius: 12px;
-      box-shadow: 0 0px 30px rgb(1, 146, 195);
-      width: 900px;
-      margin-top: 30px;
-      min-height: 650px ;
-    }
+  margin-left: 340px; /* matches .menu ~320px + padding */
+  max-width: 900px;
+
+  padding: 30px;
+  background: #032a63;
+  color: aqua;
+  border-radius: 12px;
+  box-shadow: 0 0px 30px rgb(1, 146, 195);
+  width: calc(100% - 360px);
+
+  margin-top: 30px;
+  min-height: 650px;
+}
+
+@media (max-width: 1024px) {
+  .profile-container {
+    margin-left: 280px; /* matches .menu 260px */
+    width: calc(100% - 300px);
+  }
+}
+
+.profile-header {
+  display: flex;
+  flex-direction: column;
+
+  margin-bottom: 20px;
+}
 
 
-    .profile-header {
-      display: flex;
-      flex-direction: column;
-      
-      margin-bottom: 20px;
-    }
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+}
 
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;    /* center horizontally */
+  gap: 10px;
+}
+.profile-header img { margin: 0; }
+.profile-header h2 { margin: 0; }
 
-    .profile-header img {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-left: 400px;
-    }
-    .profile-info{
-      display: flex;
-      flex-direction: column;
-      align-items: left;
-    }
+.progress-container {
+  background: #ddd;
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 15px 0;
+  height: 18px;
+  width: 100%;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50, #2196f3);
+  width: 0%;
+  text-align: center;
+  color: white;
+  font-size: 12px;
+  transition: width 0.4s ease-in-out;
+}
+.profile-details p {
+  margin: 6px 0;
+  font-size: 16px;
+}
+ul {
+  margin: 0;
+  padding-left: 20px;
+}
 
-    .profile-header h2 {
-      margin-left: 400px;
-      font-size: 30px;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
-
-    
-
-    .progress-container {
-      background: #ddd;
-      border-radius: 20px;
-      overflow: hidden;
-      margin: 15px 0;
-      height: 18px;
-      width: 100%;
-    }
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, #4CAF50, #2196F3);
-      width: 0%;
-      text-align: center;
-      color: white;
-      font-size: 12px;
-      transition: width 0.4s ease-in-out;
-    }
-    .profile-details p {
-      margin: 6px 0;
-      font-size: 16px;
-
-    }
-    ul {
-      margin: 0;
-      padding-left: 20px;
-    }
-
-    .name{
-        text-align: center;
-        color: #ffb2b2cc;
-        font-size: 30px;
-        padding-top: 20px;
-        padding-bottom: 10p;
-        margin-bottom: 10px;
-    }
-    
+.name {
+  text-align: center;
+  color: #ffb2b2cc;
+  font-size: 30px;
+  padding-top: 20px;
+  padding-bottom: 10p;
+  margin-bottom: 10px;
+}
+@media (max-width: 768px) {
+  body {
+    flex-direction: column;
+  }
+  .profile-container {
+    margin-left: 0;
+    margin-top: 80px; /* below the fixed top bar */
+    width: 100%;
+    padding: 20px;
+    min-height: auto;
+  }
+}
+.name { font-size: clamp(20px, 2.8vw, 30px); }
+.profile-details p { font-size: clamp(14px, 1.8vw, 16px); }

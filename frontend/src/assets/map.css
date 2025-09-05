@@ -3,7 +3,7 @@ body {
   background: #111;
 }
 :root {
-  --topbar-h: 84px;              /* your .navi-map height */
+  --topbar-h: 84px; /* your .navi-map height */
 }
 
 html,
@@ -11,13 +11,12 @@ body,
 #root {
   margin: 0;
   padding: 0;
-  height: 100%;                
+  height: 100%;
   /* width: 100%; */
   /* overflow: hidden; */
 }
 
 .map-page-map {
-  
   min-height: 100vh;
   margin: 0;
   font-family: Arial, sans-serif;
@@ -29,7 +28,7 @@ body,
 .navi-map {
   display: flex;
   align-items: center;
-  height: 84px;
+  height: var(--topbar-h);
   width: 100%;
 
   position: relative;
@@ -44,7 +43,7 @@ body,
   list-style: none;
   margin-left: 0px;
   z-index: 1000;
-  height: 84px;
+  height: var(--topbar-h);
 
   align-items: center;
 }
@@ -64,13 +63,13 @@ body,
   text-shadow: white 0px 0px 15px;
 }
 
-#logoutBtnMap{
-    padding: 10px 15px;
-    background-color: #fe1f1f;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+#logoutBtnMap {
+  padding: 10px 15px;
+  background-color: #fe1f1f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 .navi-map ul li.h {
@@ -116,19 +115,18 @@ body,
   overflow-y: auto;
   overflow-x: hidden;
   scroll-behavior: smooth;
-
 }
 .sidebar-map::-webkit-scrollbar {
-    width: 8px;
+  width: 8px;
 }
 
 .sidebar-map::-webkit-scrollbar-track {
-    background: #111;
+  background: #111;
 }
 
 .sidebar-map::-webkit-scrollbar-thumb {
-    background-color: #555;
-    border-radius: 6px;
+  background-color: #555;
+  border-radius: 6px;
 }
 
 .sidebar-map h3 {
@@ -182,9 +180,10 @@ body,
 .leaflet-container {
   overflow: hidden;
 }
+.leaflet-control-zoom { display: none !important; }
 
 .leaflet-tile {
-  width: 256px !important;    /* reassert Leaflet defaults */
+  width: 256px !important; /* reassert Leaflet defaults */
   height: 256px !important;
   max-width: none !important;
   max-height: none !important;
@@ -192,13 +191,10 @@ body,
   margin: 0 !important;
 }
 
-
 .saved-section {
   margin-top: 20px;
-
-
 }
-.delete-btn{
+.delete-btn {
   position: absolute;
   bottom: 20px;
   width: 150px;
@@ -212,12 +208,12 @@ body,
   font-size: 14px;
   z-index: 1000;
 }
-.delete-btn:hover{
+.delete-btn:hover {
   background-color: #a54027;
 }
 .save-btn {
   position: absolute;
-  bottom: 60px;
+  bottom: 70px;
   width: 150px;
   right: 20px;
   background-color: #3b82f6;
@@ -235,7 +231,7 @@ body,
 
 .report-btn {
   position: absolute;
-  top: 6rem;
+  top: calc(var(--topbar-h) + 8px);
   right: 20px;
   width: 150px;
   background-color: #3b82f6;
@@ -253,7 +249,7 @@ body,
 .choose-btn,
 .deselect-btn {
   position: absolute;
-  right: 20px;
+  left: 20px;
   width: 150px;
   background-color: #3b82f6;
   color: #fff;
@@ -264,24 +260,33 @@ body,
   font-size: 14px;
   z-index: 1002;
 }
-.choose-btn:hover { background-color: #2f66be; }
+.choose-btn:hover {
+  background-color: #2f66be;
+}
 
 /* Put these ABOVE your Save (60px) and Delete (20px) buttons */
-.choose-btn   { bottom: 200px; }
-.deselect-btn { bottom: 160px; background-color: #666; }
-.deselect-btn:hover { background-color: #555; }
+.choose-btn {
+  bottom: 70px;
+}
+.deselect-btn {
+  bottom: 20px;
+  background-color: #666;
+}
+.deselect-btn:hover {
+  background-color: #555;
+}
 
 /* Dropdown menu for Choose */
 .choose-menu {
   position: absolute;
-  right: 20px;
-  bottom: 240px; /* above Choose button */
+  left: 20px;
+  bottom: 112px; /* above Choose button */
   background: #222;
   border-radius: 8px;
   padding: 8px;
   z-index: 1003;
   min-width: 180px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
 }
 
 .choose-item {
@@ -293,11 +298,13 @@ body,
   font-size: 0.9rem;
   text-align: left;
 }
-.choose-item + .choose-item { margin-top: 6px; }
+.choose-item + .choose-item {
+  margin-top: 6px;
+}
 
 .calc-eta-btn {
   position: absolute;
-  top: 6rem;            /* same vertical neighborhood as your Report button */
+  top: calc(var(--topbar-h) + 8px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 1002;
@@ -316,7 +323,7 @@ body,
 
 .eta-badge {
   position: absolute;
-  top: calc(6rem + 48px);
+  top: calc(var(--topbar-h) + 56px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 1002;
@@ -326,9 +333,8 @@ body,
   border-radius: 8px;
   color: #eaeaea;
   font-size: 13px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
 }
-
 
 .overlay {
   display: none; /* hidden by default */
@@ -341,16 +347,15 @@ body,
   z-index: 2000;
   justify-content: center;
   align-items: center;
-  
 }
 
 /* Overlay content box */
 .overlay-content {
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
   background: #222;
   padding: 20px;
   border-radius: 8px;
-  width: 300px;
+  width: min(420px, 92vw);
   position: relative;
   color: white;
   text-align: center;
@@ -386,8 +391,8 @@ body,
   cursor: pointer;
 }
 
-#confirmDelete{
-background-color: #f6603b;
+#confirmDelete {
+  background-color: #f6603b;
   color: white;
   padding: 8px 15px;
   border: none;
@@ -432,14 +437,13 @@ background-color: #f6603b;
   font-family: inherit;
 }
 
-
 /* REORRT DETAILS OVERLAY */
 
 .details-content {
   width: 620px;
   max-width: 92vw;
   background: #1c1c1c;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
 }
 
 .details-header {
@@ -474,7 +478,9 @@ background-color: #f6603b;
   font-size: 0.9rem;
   color: #cfcfcf;
 }
-
+#confirmReport{
+  width: 300px;
+}
 .details-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -532,14 +538,6 @@ background-color: #f6603b;
   }
 }
 
-
-
-
-
-
-
-
-
 .notifications {
   margin-top: 20px;
 }
@@ -558,8 +556,207 @@ background-color: #f6603b;
 .notifications ul {
   list-style: none;
   padding-left: 0;
-  max-height: 200px; 
-}/* Limits height, makes scrollable
+  max-height: 200px;
+} /* Limits height, makes scrollable
 
 
 /* END */
+@supports (padding: max(0px)) {
+  .save-btn,
+  .delete-btn,
+  .choose-btn,
+  .deselect-btn {
+    padding-bottom: max(11px, env(safe-area-inset-bottom));
+    
+  }
+}
+
+/* =============== ≤ 1200px (large tablets / small laptops) =============== */
+@media (max-width: 1200px) {
+  .navi-map ul li {
+    margin: 0 12px;
+  }
+  .navi-map ul li a {
+    font-size: 20px;
+  }
+  .logo-map {
+    margin-left: 16px;
+    padding-left: 12px;
+  }
+  .sidebar-map {
+    width: 220px;
+  }
+}
+
+/* =============== ≤ 900px (tablets / narrow desktops) =============== */
+@media (max-width: 900px) {
+  /* Stack sidebar and map vertically, map first for priority */
+  .map-page-map {
+    flex-direction: column;
+  }
+
+  .sidebar-map {
+    order: 2;
+    width: 100%;
+    height: auto;
+    max-height: 40vh; /* scrollable, not too tall */
+    border-top: 1px solid #222;
+    margin-top: 0; /* remove the fixed 5rem margin */
+  }
+
+  .map-container {
+    order: 1;
+    height: calc(100vh - var(--topbar-h) - 40vh);
+    min-height: 50vh; /* keep decent map area */
+  }
+
+  /* Navbar spacing/size */
+  .navi-map ul {
+    gap: 10px;
+    padding: 0 10px;
+    flex-wrap: wrap;
+  }
+  .navi-map ul li {
+    margin: 0 8px;
+  }
+  .navi-map ul li a {
+    font-size: 18px;
+  }
+  .navi-map ul li.blog {
+    padding-right: 0;
+  } /* override the big desktop padding */
+
+  /* Buttons — keep them usable on smaller widths */
+  .save-btn,
+  .delete-btn,
+  .choose-btn,
+  .deselect-btn {
+    right: 10px;
+    width: min(44vw, 220px);
+    font-size: 13px;
+  }
+  /* tighten the stack spacing a bit */
+  .delete-btn {
+    bottom: 12px;
+  }
+  .save-btn {
+    bottom: 56px;
+  }
+  .deselect-btn {
+    bottom: 12px;
+  }
+  .choose-btn {
+    bottom: 56px;
+  }
+
+  .choose-menu {
+    left: 10px;
+    bottom: 190px;
+    min-width: 160px;
+  }
+
+  .calc-eta-btn {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  .eta-badge {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+}
+
+/* =============== ≤ 600px (phones) =============== */
+@media (max-width: 600px) {
+  /* Smaller branding + nav */
+  .com-map {
+    font-size: 16px;
+  }
+  .bud-map {
+    font-size: 22px;
+  }
+  .navi-map ul li a {
+    font-size: 16px;
+  }
+  .navi-map ul {
+    gap: 6px;
+  }
+
+  /* Sidebar and map heights */
+  .sidebar-map {
+    max-height: 26vh;
+    padding: 12px 14px;
+  }
+  .map-container {
+    height: calc(100vh - var(--topbar-h) - 26vh);
+  }
+  #map {
+    min-height: 320px;
+  }
+
+  /* Saved places / chips smaller */
+  .filter-btn,
+  .sort-option {
+    font-size: 0.85rem;
+    padding: 7px 10px;
+    width: 360px;
+  }
+
+  /* Bottom-right buttons scale down */
+  .save-btn,
+  .delete-btn,
+  .choose-btn,
+  .deselect-btn {
+    width: min(48vw, 200px);
+    font-size: 12px;
+    border-radius: 7px;
+  }
+  .delete-btn {
+    bottom: 10px;
+  }
+  .save-btn {
+    bottom: 52px;
+  }
+  .deselect-btn {
+    bottom: 52px;
+  }
+  .choose-btn {
+    bottom: 10px;
+  }
+
+  .choose-menu {
+    bottom: 182px;
+    min-width: 150px;
+  }
+
+  /* Badges & popups */
+  .badge {
+    font-size: 0.78rem;
+  }
+  .coords {
+    gap: 10px;
+    font-size: 0.9rem;
+  }
+
+  /* Notification list can grow more on phones */
+  .notifications ul {
+    max-height: 32vh;
+  }
+}
+
+/* =============== ≤ 380px (very small phones) =============== */
+@media (max-width: 380px) {
+  .navi-map ul li {
+    margin: 0 4px;
+  }
+  .navi-map ul li a {
+    font-size: 14px;
+  }
+
+  .save-btn,
+  .delete-btn,
+  .choose-btn,
+  .deselect-btn {
+    width: 90%;
+    right: 5%;
+  }
+}
