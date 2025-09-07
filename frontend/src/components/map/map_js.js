@@ -6,7 +6,7 @@ import L from "leaflet";
 import axios from "axios";
 delete L.Icon.Default.prototype._getIconUrl;
 import graph from "../../assets/graph/dhaka.graph.json";
-import { computeRouteFromCoords } from "./a_star";
+import { computeRouteFromCoords, nearestNodeId, aStarRoute } from "./a_star";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "images/marker-icon-2x.png",
@@ -241,7 +241,6 @@ function setDestination(lat, lng) {
 }
 
 export default function initMap() {
-  
   if (!token || !userId) {
     alert("Token or userId missing", token, userId);
     window.location.href = "/";
@@ -484,9 +483,11 @@ export default function initMap() {
         if (start_location_flag === true) {
           setStartLocation(lat, lng);
           start_location_coords = { lat: lat, lng: lng };
+          selectedWayId_start = nearestNodeId(graph, { lat: lat, lng: lng });
           refreshCalcButton();
         } else if (destination_flag === true) {
           setDestination(lat, lng);
+          selectedWayId_desination = nearestNodeId(graph, { lat: lat, lng: lng });
           destination_coords = { lat: lat, lng: lng };
           refreshCalcButton();
         } else {
@@ -620,7 +621,9 @@ export default function initMap() {
     const { lat, lng } = report.location || {};
     if (typeof lat !== "number" || typeof lng !== "number") return;
 
-    const marker = L.marker([lat, lng],{ icon: incident_marker }).addTo(mapInstance);
+    const marker = L.marker([lat, lng], { icon: incident_marker }).addTo(
+      mapInstance
+    );
 
     // Popup content (short summary)
     const minsLeft = Math.max(1, Math.round(msLeft / 60000));

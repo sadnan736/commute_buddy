@@ -51,6 +51,7 @@ export function nearestNodeId(graph, { lat, lng }) {
 
  
 export function aStarRoute(graph, startNodeId, goalNodeId) {
+  console.log(startNodeId, goalNodeId)
   if (!startNodeId || !goalNodeId) {
     return { nodePathIds: [], coordsPath: [], distanceMeters: 0, durationSec: 0 };
   }
