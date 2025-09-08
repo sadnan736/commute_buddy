@@ -6,15 +6,19 @@ function HomePage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleLogin = async e => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:1477/api/users/login', { email, password });
-      alert(response.data.message);
+      setShowSuccess(true);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userId', response.data.userId);
-      window.location.href = '/profile';
+
+      setTimeout(() => {
+        window.location.href = '/profile';
+      }, 2000);
     } catch (error) {
       if (error.response) {
         alert(error.response.data.error);
@@ -130,6 +134,13 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      {showSuccess && (
+          <div className="success-card">
+            <h2> Login Successful!</h2>
+            <p>Redirecting to your profile...</p>
+         </div>
+       )}
 
     </>
   );
