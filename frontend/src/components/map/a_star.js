@@ -33,7 +33,7 @@ export function nearestNodeId(graph, { lat, lng }) {
   return bestId;
 }
 
-//  cost = lengthMeters / (speedKph * 1000/3600) ETA RELATEWd
+//  cost = lengthMeters / (speedKph * 1000/3600) ETA RELATE
 // h = crow_fly_distance / (max_assumed_speed_m_per_s)
 
 // A* over the graph
