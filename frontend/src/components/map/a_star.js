@@ -1,5 +1,11 @@
 // Haversine in meters
-
+// {
+//     "lat": 23.813243062951845,
+//     "lng": 90.4067125289095
+//      id: 752113690
+//      nid = n174689
+// }
+//  n194969
 function haversine(lat1, lon1, lat2, lon2) {
   const R = 6371000; // m
   const toRad = (x) => (x * Math.PI) / 180;
@@ -7,8 +13,7 @@ function haversine(lat1, lon1, lat2, lon2) {
   const dLon = toRad(lon2 - lon1);
   const a =
     Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-    Math.sin(dLon / 2) ** 2;
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
@@ -49,12 +54,24 @@ export function nearestNodeId(graph, { lat, lng }) {
 //   ...
 // }
 
- 
-export function aStarRoute(graph, startNodeId, goalNodeId) {
-  console.log(startNodeId, goalNodeId)
+export function aStarRoute(
+  graph,
+  startNodeId,
+  goalNodeId,
+  startLatLng,
+  endLatLng,
+  IncidentStore
+) {
+  console.log(startNodeId, goalNodeId);
   if (!startNodeId || !goalNodeId) {
-    return { nodePathIds: [], coordsPath: [], distanceMeters: 0, durationSec: 0 };
+    return {
+      nodePathIds: [],
+      coordsPath: [],
+      distanceMeters: 0,
+      durationSec: 0,
+    };
   }
+  const byWayId = IncidentStore?.byWayId || {};
 
   // Heuristic: optimistic time using straight-line distance / 60km/h
   const heuristic = (nid) => {
@@ -80,7 +97,10 @@ export function aStarRoute(graph, startNodeId, goalNodeId) {
     let bestF = Infinity;
     for (const nid of openSet) {
       const f = fScore.get(nid) ?? Infinity;
-      if (f < bestF) { bestF = f; best = nid; }
+      if (f < bestF) {
+        bestF = f;
+        best = nid;
+      }
     }
     if (best) openSet.delete(best);
     return best;
@@ -99,30 +119,45 @@ export function aStarRoute(graph, startNodeId, goalNodeId) {
       }
       nodePathIds.reverse();
 
-      // distance + duration along path
+      // distance + duration along path (recompute with incidents for accurate ETA)
       let distanceMeters = 0;
       let durationSec = 0;
+
       for (let i = 0; i < nodePathIds.length - 1; i++) {
         const from = nodePathIds[i];
         const to = nodePathIds[i + 1];
-        const edge = (graph.adj[from] || []).find(e => e[0] === to);
+        const edge = (graph.adj[from] || []).find((e) => e[0] === to);
+
         if (edge) {
           const length = edge[1] || 0; // meters
-          const speedKph = edge[2] || 30; // default fallback
+          const speedKph = edge[2] || 30;
           const speedMps = (speedKph * 1000) / 3600;
+
+          const wayId = edge[4];
+          const inc = wayId ? byWayId[wayId] : null;
+          const factor =
+            inc && Number.isFinite(inc.factor) && inc.factor > 0
+              ? inc.factor
+              : 1.0;
+
+          const baseTravelSec =
+            speedMps > 0 ? length / speedMps : length / (30_000 / 3600);
+
           distanceMeters += length;
-          durationSec += speedMps > 0 ? (length / speedMps) : 0;
+          durationSec += baseTravelSec * factor;
         } else {
-          // if edge missing, approximate with straight-line
+          // missing edge — fallback
           const [lat1, lng1] = graph.nodes[from];
           const [lat2, lng2] = graph.nodes[to];
           const d = haversine(lat1, lng1, lat2, lng2);
           distanceMeters += d;
-          durationSec += d / (50_000 / 3600); // 50 km/h fallback
+          durationSec += d / (50_000 / 3600);
         }
       }
 
-      const coordsPath = nodePathIds.map(nid => graph.nodes[nid]);
+      const coordsPath = nodePathIds.map((nid) => graph.nodes[nid]);
+      coordsPath[0] = [startLatLng.lat, startLatLng.lng];
+      coordsPath[coordsPath.length - 1] = [endLatLng.lat, endLatLng.lng];
       return { nodePathIds, coordsPath, distanceMeters, durationSec };
     }
 
@@ -132,7 +167,22 @@ export function aStarRoute(graph, startNodeId, goalNodeId) {
       const length = edge[1] || 0; // meters
       const speedKph = edge[2] || 30;
       const speedMps = (speedKph * 1000) / 3600;
-      const travelSec = speedMps > 0 ? (length / speedMps) : (length / (30_000 / 3600));
+
+      // INCIDENT LOOKUP
+      const wayId = edge[4]; // your graph has wayId at index 4
+      const inc = wayId ? byWayId[wayId] : null;
+
+      // 1) hard avoid -> skip the edge entirely
+      if (inc?.avoid) continue;
+
+      // 2) base travel time for this edge
+      const baseTravelSec =
+        speedMps > 0 ? length / speedMps : length / (30_000 / 3600);
+
+      // 3) inflate by incident factor if present (>= 1)
+      const factor =
+        inc && Number.isFinite(inc.factor) && inc.factor > 0 ? inc.factor : 1.0;
+      const travelSec = baseTravelSec * factor;
 
       const tentativeG = (gScore.get(current) ?? Infinity) + travelSec;
 
@@ -153,8 +203,22 @@ export function aStarRoute(graph, startNodeId, goalNodeId) {
  * High-level helper: get route from lat/lng to lat/lng.
  * - Finds nearest graph nodes to the given coords.
  */
-export function computeRouteFromCoords(graph, startLatLng, endLatLng) {
+export function computeRouteFromCoords(
+  graph,
+  startLatLng,
+  endLatLng,
+  IncidentStore
+) {
+  console.log("in astar ", startLatLng);
   const startNode = nearestNodeId(graph, startLatLng);
+  console.log(startNode);
   const goalNode = nearestNodeId(graph, endLatLng);
-  return aStarRoute(graph, startNode, goalNode);
+  return aStarRoute(
+    graph,
+    startNode,
+    goalNode,
+    startLatLng,
+    endLatLng,
+    IncidentStore
+  );
 }

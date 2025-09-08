@@ -7,6 +7,8 @@ import axios from "axios";
 delete L.Icon.Default.prototype._getIconUrl;
 import graph from "../../assets/graph/dhaka.graph.json";
 import { computeRouteFromCoords, nearestNodeId, aStarRoute } from "./a_star";
+import { updateIncidentStore } from "./aStarRouteWithIncidents";
+import { computeRouteFromCoords_core } from "./a_star_core";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "images/marker-icon-2x.png",
@@ -14,9 +16,20 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "/images/marker-shadow.png",
 });
 
-const ETA_marker = L.icon({
+const desination_marker = L.icon({
   iconRetinaUrl: "images/eta-marker-icon-2x.png",
   iconUrl: "images/eta-marker-icon.png",
+  shadowUrl: "images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41], // center-bottom (12 = 25/2)
+  popupAnchor: [0, -36], // nudge popup up so it sits above the tip
+  shadowSize: [41, 41],
+  shadowAnchor: [12, 41],
+});
+
+const start_marker = L.icon({
+  iconRetinaUrl: "images/start-marker-icon-2x.png",
+  iconUrl: "images/start-marker-icon.png",
   shadowUrl: "images/marker-shadow.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41], // center-bottom (12 = 25/2)
@@ -220,7 +233,7 @@ function setStartLocation(lat, lng) {
   if (start_location_marker) {
     mapInstance.removeLayer(start_location_marker);
   }
-  start_location_marker = L.marker([lat, lng], { icon: ETA_marker })
+  start_location_marker = L.marker([lat, lng], { icon: start_marker })
     .addTo(mapInstance)
     .bindPopup("Start Location");
 }
@@ -235,7 +248,7 @@ function setDestination(lat, lng) {
   if (destination_marker) {
     mapInstance.removeLayer(destination_marker);
   }
-  destination_marker = L.marker([lat, lng], { icon: ETA_marker })
+  destination_marker = L.marker([lat, lng], { icon: desination_marker })
     .addTo(mapInstance)
     .bindPopup("Destination");
 }
@@ -341,6 +354,8 @@ export default function initMap() {
   let start_location_coords = null;
   let destination_coords = null;
 
+  let IncidentStore = { byWayId: {}, lastUpdated: 0 };
+
   fetch_saved_places().then(() => {
     updateSavedPlacesUI();
 
@@ -361,6 +376,7 @@ export default function initMap() {
       if (start_location_flag === true) {
         setStartLocation(snappedLatLng.lat, snappedLatLng.lng);
         start_location_coords = { ...snappedLatLng };
+        console.log("in mpa", start_location_coords);
         selectedWayId_start = snap.wayId;
 
         refreshCalcButton();
@@ -380,6 +396,7 @@ export default function initMap() {
         currentMarker = L.marker(selectedCoords).addTo(mapInstance);
         if (saveBtn) saveBtn.style.display = "block";
         if (reportBtn) reportBtn.style.display = "block";
+        console.log("in mpa", selectedCoords);
       }
     } else {
       alert("No road nearby. Try clicking closer to a road.");
@@ -483,11 +500,15 @@ export default function initMap() {
         if (start_location_flag === true) {
           setStartLocation(lat, lng);
           start_location_coords = { lat: lat, lng: lng };
+
           selectedWayId_start = nearestNodeId(graph, { lat: lat, lng: lng });
           refreshCalcButton();
         } else if (destination_flag === true) {
           setDestination(lat, lng);
-          selectedWayId_desination = nearestNodeId(graph, { lat: lat, lng: lng });
+          selectedWayId_desination = nearestNodeId(graph, {
+            lat: lat,
+            lng: lng,
+          });
           destination_coords = { lat: lat, lng: lng };
           refreshCalcButton();
         } else {
@@ -590,7 +611,7 @@ export default function initMap() {
         reportedBy: reporterName,
       })
         .then((created) => {
-          addOneReport(created);
+          refreshReportsAndIncidents()
         })
         .catch((err) => {
           console.log("Failed to submit report", err);
@@ -820,14 +841,18 @@ export default function initMap() {
   const reportMarkers = new Map();
   let openReportId = null;
 
-  fetchReports().then((reports) => {
-    setAllReports(reports);
-  });
+  refreshReportsAndIncidents();
+  function refreshReportsAndIncidents() {
+    fetchReports()
+      .then((new_reports) => {
+        setAllReports(new_reports);
+        IncidentStore = updateIncidentStore(IncidentStore, new_reports);
+      })
+      .catch(console.error);
+  }
 
   setInterval(() => {
-    fetchReports().then((reports) => {
-      setAllReports(reports);
-    });
+    refreshReportsAndIncidents();
   }, 120000);
   // marker
 
@@ -890,10 +915,17 @@ export default function initMap() {
     }
 
     // Compute route (A*)
+    // const result = computeRouteFromCoords_core(
+    //   graph,
+    //   start_location_coords,
+    //   destination_coords
+    // );
+
     const result = computeRouteFromCoords(
       graph,
       start_location_coords,
-      destination_coords
+      destination_coords,
+      IncidentStore
     );
 
     if (!result.coordsPath.length) {

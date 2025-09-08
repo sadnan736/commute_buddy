@@ -35,6 +35,7 @@ class GraphBuilder(pyosmium.SimpleHandler):
     self.nodes = {}     # osm node id -> (lat, lon)
     self.keep_nodes = set()
     self.edges = []     # (aId, bId, lenM, speed, oneway, wayId)
+    self.max_speed_kph = 0
   def node(self, n):
     self.nodes[n.id] = (n.location.lat, n.location.lon)
   def way(self, w):
@@ -42,6 +43,11 @@ class GraphBuilder(pyosmium.SimpleHandler):
     if h not in DRIVABLE: return
     oneway = 1 if (w.tags.get("oneway") in ["yes","1","true"] or h=="motorway") else 0
     speed = parse_maxspeed(w.tags.get("maxspeed"), h)
+
+    if speed > self.max_speed_kph:
+      self.max_speed_kph = speed
+
+
     refs = [nd.ref for nd in w.nodes]
     for i in range(len(refs)-1):
       a, b = refs[i], refs[i+1]
@@ -81,9 +87,15 @@ def main():
     adj[A].append([B, L, speed, oneway, wayId])
 
   out = { "meta": {"srid":4326}, "nodes": nodes_out, "adj": adj }
+
+  out["meta"]["vmax_kph"] = gb.max_speed_kph
+  out["meta"]["vmax_mps"] = gb.max_speed_kph * 1000 / 3600.0
+
+
   with open(OUT, "w") as f:
     json.dump(out, f)
   print(f"Wrote {OUT}")
+  print(f"Max speed observed: {gb.max_speed_kph} km/h")
 
 if __name__ == "__main__":
   print("working")
