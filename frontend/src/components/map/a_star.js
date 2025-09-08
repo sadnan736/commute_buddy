@@ -169,7 +169,7 @@ export function aStarRoute(
       const speedMps = (speedKph * 1000) / 3600;
 
       // INCIDENT LOOKUP
-      const wayId = edge[4]; // your graph has wayId at index 4
+      const wayId = edge[4]; // wayId at index 4
       const inc = wayId ? byWayId[wayId] : null;
 
       // 1) hard avoid -> skip the edge entirely

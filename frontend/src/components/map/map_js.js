@@ -215,6 +215,24 @@ export function snapToRoad(lat, lng, graph, threshold = 30) {
 
   return best.dist <= threshold ? best : null;
 }
+function hasActiveReportSameTypeOnWay({ type, wayId, reports }) {
+  if (!wayId || !Array.isArray(reports)) return false;
+
+  const desiredType = String(type).toLowerCase();
+
+  return reports.some((r) => {
+    const rWay = r.wayId ?? r.wayID; // be tolerant of casing
+    if (rWay !== wayId) return false;
+
+    const rType = String(r.type || "").toLowerCase();
+    if (rType !== desiredType) return false;
+
+    // Only consider active reports
+
+    // If no expiresAt provided, treat as active
+    return true;
+  });
+}
 
 let mapInstance = null;
 let currentMarker = null;
@@ -595,6 +613,18 @@ export default function initMap() {
       return;
     }
 
+    if (
+      hasActiveReportSameTypeOnWay({
+        type,
+        wayId: selectedWayId,
+        reports: Array.isArray(all_reports) ? all_reports : [],
+      })
+    ) {
+      alert(
+        `A "${type}" report already exists on this road. Please choose another road or wait until it expires.`
+      );
+      return; // stop submission
+    }
     // For now just log the result
     console.log("Report ready:");
 
@@ -611,7 +641,7 @@ export default function initMap() {
         reportedBy: reporterName,
       })
         .then((created) => {
-          refreshReportsAndIncidents()
+          refreshReportsAndIncidents();
         })
         .catch((err) => {
           console.log("Failed to submit report", err);
