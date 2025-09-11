@@ -62,7 +62,7 @@ const axiosConfig = { headers: { Authorization: `Bearer ${token}` } };
 async function fetchUserName(userId) {
   try {
     const res = await axios.get(
-      `http://localhost:1477/api/reports/${userId}/name`,
+      `https://commute-buddy-fegt.onrender.com/api/reports/${userId}/name`,
       axiosConfig
     );
     return res.data;
@@ -79,7 +79,7 @@ let saved_places = {};
 async function fetch_saved_places() {
   try {
     const res = await axios.get(
-      `http://localhost:1477/api/map/${userId}/saved-places`,
+      `https://commute-buddy-fegt.onrender.com/api/map/${userId}/saved-places`,
       axiosConfig
     );
     saved_places = res.data;
@@ -99,7 +99,7 @@ async function create_report({
 }) {
   try {
     const res = await axios.post(
-      "http://localhost:1477/api/reports",
+      "https://commute-buddy-fegt.onrender.com/api/reports",
       {
         type,
         severity,
@@ -122,7 +122,7 @@ async function create_report({
 
 async function fetchReports(activeOnly = true) {
   const res = await axios.get(
-    `http://localhost:1477/api/reports?activeOnly=${activeOnly}`,
+    `https://commute-buddy-fegt.onrender.com/api/reports?activeOnly=${activeOnly}`,
     axiosConfig
   );
   return res.data;
@@ -134,7 +134,7 @@ async function save_place(locationName, coords, selected_id) {
     console.log(selected_id);
     console.log(locationName, coords);
     const res = await axios.post(
-      `http://localhost:1477/api/map/${userId}/saved-places`,
+      `https://commute-buddy-fegt.onrender.com/api/map/${userId}/saved-places`,
 
       {
         locationName: locationName,
@@ -154,7 +154,7 @@ async function deleteSavedPlace(locationName) {
 
   try {
     const res = await axios.delete(
-      `http://localhost:1477/api/map/${userId}/saved-places`,
+      `https://commute-buddy-fegt.onrender.com/api/map/${userId}/saved-places`,
       {
         headers: { Authorization: `Bearer ${token}` },
         data: { locationName }, // axios deletes need `data` for body

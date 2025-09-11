@@ -2,7 +2,12 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-export default function ReportVotes({ reportId, initialUpvotes, initialDownvotes, token }) {
+export default function ReportVotes({
+  reportId,
+  initialUpvotes,
+  initialDownvotes,
+  token,
+}) {
   const [upvotes, setUpvotes] = useState(initialUpvotes || 0);
   const [downvotes, setDownvotes] = useState(initialDownvotes || 0);
   const [hasVoted, setHasVoted] = useState(false);
@@ -18,7 +23,7 @@ export default function ReportVotes({ reportId, initialUpvotes, initialDownvotes
     }
     try {
       const response = await axios.post(
-        `http://localhost:1477/api/reports/${reportId}/${type}`,
+        `https://commute-buddy-fegt.onrender.com/api/reports/${reportId}/${type}`,
         {},
         config
       );
@@ -33,10 +38,18 @@ export default function ReportVotes({ reportId, initialUpvotes, initialDownvotes
 
   return (
     <div className="report-votes">
-      <button onClick={() => handleVote("upvote")} disabled={hasVoted} aria-label="Upvote">
+      <button
+        onClick={() => handleVote("upvote")}
+        disabled={hasVoted}
+        aria-label="Upvote"
+      >
         👍 {upvotes}
       </button>
-      <button onClick={() => handleVote("downvote")} disabled={hasVoted} aria-label="Downvote">
+      <button
+        onClick={() => handleVote("downvote")}
+        disabled={hasVoted}
+        aria-label="Downvote"
+      >
         👎 {downvotes}
       </button>
     </div>

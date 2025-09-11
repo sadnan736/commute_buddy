@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <link rel="stylesheet" href="user.css">
-  <link rel= "stylesheet" href="menu.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="user.css" />
+    <link rel="stylesheet" href="menu.css" />
+  </head>
+  <body>
     <div class="menu">
       <div class="logo">
-          <div class="com">Commute</div><div class="bud">Buddy</div>
+        <div class="com">Commute</div>
+        <div class="bud">Buddy</div>
       </div>
       <div class="name">
         <img id="avatar" src="" alt="Avatar" />
@@ -19,145 +20,163 @@
       </div>
       <p>Email: <span id="email"></span></p>
 
-
       <a href="user.html" class="user">User Profile</a>
       <a href="dashboard.html" class="update">Update Profile </a>
       <button id="logoutBtn">Logout</button>
     </div>
 
-    
-  <div class="profile-container">
-    <div class="profile-header">
-      <img id="mainAvatar" src="default-avatar.png" alt="Avatar" />
-      <div class="profile-info">
-        <h2 id="name">Loading...</h2>
-        <p id="profileEmail">Loading...</p>
-        <p>Joined: <span id="joined">Loading...</span></p>
+    <div class="profile-container">
+      <div class="profile-header">
+        <img id="mainAvatar" src="default-avatar.png" alt="Avatar" />
+        <div class="profile-info">
+          <h2 id="name">Loading...</h2>
+          <p id="profileEmail">Loading...</p>
+          <p>Joined: <span id="joined">Loading...</span></p>
+        </div>
+      </div>
+
+      <h3>Profile Completion</h3>
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar">0%</div>
+      </div>
+
+      <div class="profile-details">
+        <h3>Preferences</h3>
+        <ul id="preferences">
+          <li>Loading...</li>
+        </ul>
+      </div>
+
+      <div class="profile-details">
+        <h3>Locations</h3>
+        <p>Home: <span id="homeLocation">Not set</span></p>
+        <p>Work: <span id="workLocation">Not set</span></p>
+      </div>
+
+      <div class="profile-details">
+        <h3>Preferred Regions</h3>
+        <ul id="preferredRegions"></ul>
       </div>
     </div>
 
-    <h3>Profile Completion</h3>
-    <div class="progress-container">
-      <div class="progress-bar" id="progressBar">0%</div>
-    </div>
+    <script>
+      // Helper function to render user profile
+      function renderUserProfile(user) {
+        // Sidebar
+        document.getElementById("username").textContent =
+          user.name || "Unnamed";
+        document.getElementById("email").textContent = user.email || "N/A";
+        document.getElementById("avatar").src =
+          user.avatar || "default-avatar.png";
 
-    <div class="profile-details">
-      <h3>Preferences</h3>
-      <ul id="preferences">
-        <li>Loading...</li>
-      </ul>
-    </div>
+        // Main profile
+        document.getElementById("name").textContent = user.name || "Unnamed";
+        document.getElementById("profileEmail").textContent =
+          user.email || "N/A";
+        document.getElementById("joined").textContent = new Date(
+          user.createdAt
+        ).toLocaleDateString();
+        document.getElementById("mainAvatar").src =
+          user.avatar || "default-avatar.png";
 
-    
-    <div class="profile-details">
-      <h3>Locations</h3>
-      <p>Home: <span id="homeLocation">Not set</span></p>
-      <p>Work: <span id="workLocation">Not set</span></p>
-    </div>
+        // Preferences
+        if (user.preferences && user.preferences.length > 0) {
+          document.getElementById("preferences").innerHTML = user.preferences
+            .map((pref) => `<li>${pref}</li>`)
+            .join("");
+        } else {
+          document.getElementById("preferences").innerHTML =
+            "<li>No preferences set</li>";
+        }
 
-    <div class="profile-details">
-      <h3>Preferred Regions</h3>
-      <ul id="preferredRegions"></ul>
-    </div>
-  </div>
+        // Profile Completion %
+        let fields = [
+          "name",
+          "email",
+          "avatar",
+          "preferences",
+          "homeLocation",
+          "workLocation",
+          "preferredRegions",
+        ];
+        let filled = 0;
 
-  <script>
-    // Helper function to render user profile
-    function renderUserProfile(user) {
-      // Sidebar
-      document.getElementById("username").textContent = user.name || "Unnamed";
-      document.getElementById("email").textContent = user.email || "N/A";
-      document.getElementById("avatar").src = user.avatar || "default-avatar.png";
+        if (user.name) filled++;
+        if (user.email) filled++;
+        if (user.avatar && user.avatar !== "default-avatar.png") filled++;
+        if (user.preferences?.length > 0) filled++;
+        if (user.homeLocation) filled++;
+        if (user.workLocation) filled++;
+        if (user.preferredRegions?.length > 0) filled++;
 
-      // Main profile
-      document.getElementById("name").textContent = user.name || "Unnamed";
-      document.getElementById("profileEmail").textContent = user.email || "N/A";
-      document.getElementById("joined").textContent = new Date(user.createdAt).toLocaleDateString();
-      document.getElementById("mainAvatar").src = user.avatar || "default-avatar.png";
+        let percent = Math.round((filled / fields.length) * 100);
+        let progressBar = document.getElementById("progressBar");
+        progressBar.style.width = percent + "%";
+        progressBar.textContent = percent + "%";
 
-      // Preferences
-      if (user.preferences && user.preferences.length > 0) {
-        document.getElementById("preferences").innerHTML = user.preferences
-          .map(pref => `<li>${pref}</li>`)
-          .join("");
-      } else {
-        document.getElementById("preferences").innerHTML = "<li>No preferences set</li>";
+        document.getElementById("homeLocation").textContent =
+          user.homeLocation || "Not set";
+        document.getElementById("workLocation").textContent =
+          user.workLocation || "Not set";
+
+        if (user.preferredRegions?.length > 0) {
+          document.getElementById("preferredRegions").innerHTML =
+            user.preferredRegions
+              .map((region) => `<li>${region}</li>`)
+              .join("");
+        } else {
+          document.getElementById("preferredRegions").innerHTML =
+            "<li>No regions set</li>";
+        }
       }
 
-      // Profile Completion %
-      let fields = ["name", "email", "avatar", "preferences", "homeLocation", "workLocation", "preferredRegions"];
-      let filled = 0;
-      
-      if (user.name) filled++;
-      if (user.email) filled++;
-      if (user.avatar && user.avatar !== "default-avatar.png") filled++;
-      if (user.preferences?.length > 0) filled++;
-      if (user.homeLocation) filled++;
-      if (user.workLocation) filled++;
-      if (user.preferredRegions?.length > 0) filled++;
+      //Load user profile
+      async function loadUserProfile() {
+        const token = localStorage.getItem("token");
+        const userId = localStorage.getItem("userId");
 
-      let percent = Math.round((filled / fields.length) * 100);
-      let progressBar = document.getElementById("progressBar");
-      progressBar.style.width = percent + "%";
-      progressBar.textContent = percent + "%";
+        if (!token || !userId) {
+          alert("Not logged in!");
+          window.location.href = "index.html";
+          return;
+        }
 
-      document.getElementById("homeLocation").textContent = user.homeLocation || "Not set";
-      document.getElementById("workLocation").textContent = user.workLocation || "Not set";
-      
-      if (user.preferredRegions?.length > 0) {
-        document.getElementById("preferredRegions").innerHTML = user.preferredRegions
-          .map(region => `<li>${region}</li>`)
-          .join("");
-      } else {
-        document.getElementById("preferredRegions").innerHTML = "<li>No regions set</li>";
+        //  Load cached data instantly
+        const cachedUser = JSON.parse(localStorage.getItem("userData"));
+        if (cachedUser) {
+          renderUserProfile(cachedUser);
+        }
+
+        //  Fetch fresh data from API
+        try {
+          const response = await axios.get(
+            `https://commute-buddy-fegt.onrender.com/api/users/${userId}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+
+          const user = response.data;
+          localStorage.setItem("userData", JSON.stringify(user)); // keep cache fresh
+          renderUserProfile(user);
+        } catch (err) {
+          console.error(err);
+          alert("Failed to load profile. Please log in again.");
+          logout();
+        }
       }
-    }
 
-    //Load user profile
-    async function loadUserProfile() {
-      const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
-
-      if (!token || !userId) {
-        alert("Not logged in!");
+      function logout() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("userData"); // clear cached data too
         window.location.href = "index.html";
-        return;
       }
 
-      //  Load cached data instantly
-      const cachedUser = JSON.parse(localStorage.getItem("userData"));
-      if (cachedUser) {
-        renderUserProfile(cachedUser);
-      }
+      document.getElementById("logoutBtn").addEventListener("click", logout);
 
-      //  Fetch fresh data from API
-      try {
-        const response = await axios.get(`http://localhost:1477/api/users/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        const user = response.data;
-        localStorage.setItem("userData", JSON.stringify(user)); // keep cache fresh
-        renderUserProfile(user);
-      } catch (err) {
-        console.error(err);
-        alert("Failed to load profile. Please log in again.");
-        logout();
-      }
-    }
-
-    function logout() {
-      localStorage.removeItem("token");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("userData"); // clear cached data too
-      window.location.href = "index.html";
-    }
-
-    document.getElementById("logoutBtn").addEventListener("click", logout);
-
-    // Load profile on page load
-    loadUserProfile();
-  </script>
-
-</body>
+      // Load profile on page load
+      loadUserProfile();
+    </script>
+  </body>
 </html>

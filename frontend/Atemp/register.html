@@ -1,66 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>User Registration</title>
-  <link rel="stylesheet" href="regi.css" />
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Registration</title>
+    <link rel="stylesheet" href="regi.css" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
 
-</head>
-
-
-
-<body>
-
+  <body>
     <div class="hd">
-      
-
       <button class="back-btn" onclick="goBack()">
         <span class="arrow"></span>
-
       </button>
 
-      <div class="com">Commute</div><div class="bud">Buddy</div>
-  </div>
+      <div class="com">Commute</div>
+      <div class="bud">Buddy</div>
+    </div>
 
+    <div class="form-container">
+      <h2>Register</h2>
+      <form id="registerForm">
+        <input type="text" name="name" placeholder="Full Name" required />
+        <input type="email" name="email" placeholder="Email" required />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          required
+        />
 
-  <div class="form-container">
-    <h2>Register</h2>
-    <form id="registerForm">
-      <input type="text" name="name" placeholder="Full Name" required />
-      <input type="email" name="email" placeholder="Email" required />
-      <input type="password" name="password" placeholder="Password" required />
-      
-      <label>Avatar (optional)</label>
-      <input type="file" name="avatar" id="avatarInput" accept="image/*" />
-      <img id="avatarPreview" src="" alt="Avatar Preview" />
-      
-      <button class="regibut" type="submit" >Register</button>
-    </form>
+        <label>Avatar (optional)</label>
+        <input type="file" name="avatar" id="avatarInput" accept="image/*" />
+        <img id="avatarPreview" src="" alt="Avatar Preview" />
 
-  </div>
+        <button class="regibut" type="submit">Register</button>
+      </form>
+    </div>
 
-  <script>
-    function goBack() {
+    <script>
+      function goBack() {
         window.location.href = "index.html"; // Redirect to home page
-    }
+      }
 
-    // Avatar preview
-    const avatarInput = document.getElementById("avatarInput");
-    const avatarPreview = document.getElementById("avatarPreview");
+      // Avatar preview
+      const avatarInput = document.getElementById("avatarInput");
+      const avatarPreview = document.getElementById("avatarPreview");
 
-    avatarInput.addEventListener("change", () => {
+      avatarInput.addEventListener("change", () => {
         const file = avatarInput.files[0];
         if (file) {
-            avatarPreview.src = URL.createObjectURL(file);
-            avatarPreview.style.display = "block";
+          avatarPreview.src = URL.createObjectURL(file);
+          avatarPreview.style.display = "block";
         }
-    });
+      });
 
-    const form = document.getElementById("registerForm");
+      const form = document.getElementById("registerForm");
 
-    form.addEventListener("submit", async (e) => {
+      form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         // ✅ Use FormData to include file
@@ -70,37 +67,35 @@
         formData.append("password", form.password.value);
 
         if (avatarInput.files[0]) {
-            formData.append("avatar", avatarInput.files[0]); // actual image file
+          formData.append("avatar", avatarInput.files[0]); // actual image file
         }
 
         // Optional: add other fields if needed
         // formData.append("homeLocation", form.homeLocation.value);
 
         try {
-        const response = await axios.post("http://localhost:1477/api/users/register", formData, {
-            headers: { "Content-Type": "multipart/form-data" }
-        });
+          const response = await axios.post(
+            "https://commute-buddy-fegt.onrender.com/api/users/register",
+            formData,
+            {
+              headers: { "Content-Type": "multipart/form-data" },
+            }
+          );
 
-        if (response.data.message) {
+          if (response.data.message) {
             alert(response.data.message); // "User registered"
             window.location.href = "profile.html";
-        } else {
+          } else {
             alert("Registration successful, but no message returned");
-        }
-
+          }
         } catch (err) {
-        if (err.response && err.response.data.error) {
+          if (err.response && err.response.data.error) {
             alert(err.response.data.error); // "Email already exists"
-        } else {
+          } else {
             alert("Server error");
+          }
         }
-        }
-
-   });
-</script>
-
-
-  
-
-</body>
+      });
+    </script>
+  </body>
 </html>
