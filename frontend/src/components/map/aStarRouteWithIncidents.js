@@ -37,7 +37,7 @@ export function msUntilExpiry(expiresAt) {
   return new Date(expiresAt).getTime() - Date.now();
 }
 
-export function updateIncidentStore(prevStore, newReports) {
+export async function updateIncidentStore(prevStore, newReports) {
   const prev = normalizeStore(prevStore);
   const list = Array.isArray(newReports) ? newReports : [];
 

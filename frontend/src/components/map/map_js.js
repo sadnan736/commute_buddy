@@ -56,6 +56,7 @@ let selectedWayId_start = null;
 let selectedWayId_desination = null;
 
 let routeLayer = null;
+let routeLayer_flag = false;
 
 const axiosConfig = { headers: { Authorization: `Bearer ${token}` } };
 
@@ -248,6 +249,8 @@ function setStartLocation(lat, lng) {
       mapInstance.removeLayer(routeLayer);
     } catch {}
   }
+  routeLayer = null;
+  routeLayer_flag = false;
   if (start_location_marker) {
     mapInstance.removeLayer(start_location_marker);
   }
@@ -263,6 +266,8 @@ function setDestination(lat, lng) {
       mapInstance.removeLayer(routeLayer);
     } catch {}
   }
+  routeLayer = null;
+  routeLayer_flag = false;
   if (destination_marker) {
     mapInstance.removeLayer(destination_marker);
   }
@@ -641,7 +646,7 @@ export default function initMap() {
         reportedBy: reporterName,
       })
         .then((created) => {
-          refreshReportsAndIncidents();
+          refreshReportsAndIncidents(true);
         })
         .catch((err) => {
           console.log("Failed to submit report", err);
@@ -871,18 +876,28 @@ export default function initMap() {
   const reportMarkers = new Map();
   let openReportId = null;
 
-  refreshReportsAndIncidents();
-  function refreshReportsAndIncidents() {
+  refreshReportsAndIncidents(true);
+  function refreshReportsAndIncidents(flag = false) {
     fetchReports()
       .then((new_reports) => {
         setAllReports(new_reports);
-        IncidentStore = updateIncidentStore(IncidentStore, new_reports);
+        updateIncidentStore(IncidentStore, new_reports)
+          .then((nextStore) => {
+            IncidentStore = nextStore;
+            console.log('route laer flag',routeLayer_flag)
+            if (routeLayer_flag) {
+              onCalculateETA(flag);
+            }
+          })
+          .catch((err) => {
+            console.error("Update failed", err);
+          });
       })
       .catch(console.error);
   }
 
   setInterval(() => {
-    refreshReportsAndIncidents();
+    refreshReportsAndIncidents(true);
   }, 120000);
   // marker
 
@@ -938,7 +953,7 @@ export default function initMap() {
       btn.style.display = "block";
     }
   }
-  async function onCalculateETA() {
+  async function onCalculateETA(flag = false) {
     if (!start_location_marker || !destination_marker) {
       alert("Please set both Start and Destination.");
       return;
@@ -964,6 +979,8 @@ export default function initMap() {
           mapInstance.removeLayer(routeLayer);
         } catch {}
       }
+      routeLayer = null;
+      routeLayer_flag = false;
       document.getElementById("etaBadge").style.display = "none";
       alert("No route found.");
       return;
@@ -975,11 +992,17 @@ export default function initMap() {
         mapInstance.removeLayer(routeLayer);
       } catch {}
     }
+    routeLayer_flag = false;
+    routeLayer = null;
     routeLayer = L.polyline(result.coordsPath, {
       weight: 5,
       opacity: 0.9,
     }).addTo(mapInstance);
-    mapInstance.fitBounds(routeLayer.getBounds(), { padding: [40, 40] });
+    routeLayer_flag = true;
+    console.log("calceta: ", flag);
+    if (!flag) {
+      mapInstance.fitBounds(routeLayer.getBounds(), { padding: [40, 40] });
+    }
 
     // Show ETA + distance
     const km = (result.distanceMeters / 1000).toFixed(2);
@@ -989,7 +1012,7 @@ export default function initMap() {
     badge.style.display = "block";
   }
 
-  if (calcBtn) calcBtn.addEventListener("click", onCalculateETA);
+  if (calcBtn) calcBtn.addEventListener("click", () => onCalculateETA(false));
 
   if (reportBtn) reportBtn.addEventListener("click", onReportBtnClick);
   if (closeReportOverlayBtn)
