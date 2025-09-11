@@ -11,7 +11,7 @@ function HomePage() {
   const handleLogin = async e => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:1477/api/users/login', { email, password });
+      const response = await axios.post('https://commute-buddy-fegt.onrender.com/api/users/login', { email, password });
       setShowSuccess(true);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userId', response.data.userId);
