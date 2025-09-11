@@ -14,7 +14,7 @@ function HomePage() {
     hasCreds = false;
   }
   if (hasCreds) {
-  setTimeout(() => { window.location.href = "/profile"; }, 2000);
+  window.location.href = "/profile";
 }
 
 
