@@ -2,7 +2,7 @@
 
 > Community‑powered, disaster‑aware routing for Dhaka. Avoid floods, accidents, and blockades with live reports + a custom A\* router.
 
-**Live demo:** [https://commute-buddy-three.vercel.app/](https://commute-buddy-three.vercel.app/)
+**Live demo:** [CommuteBuddy](https://commute-buddy-three.vercel.app/)
 
 ## Table of contents
 
