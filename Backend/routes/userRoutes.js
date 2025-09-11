@@ -83,7 +83,7 @@ router.get("/:id", authenticate, async (req, res) => {
   }
 });
 
-router.get("/hello", async (req, res) => {
+router.get("/hello" , async (req, res) => {
   try {
     res.json("working");
   } catch (err) {
