@@ -6,7 +6,7 @@
 
 ## Table of contents
 
-* [What is it?](#what-is-it)
+* [What is it?](#-what-is-it)
 * [Features](#features)
 * [Architecture](#architecture)
 * [Data model (MongoDB)](#data-model-mongodb)
