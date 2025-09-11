@@ -21,6 +21,12 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+
+router.get("/hello", (req, res) => {
+  res.json("working");
+});
+
+
 // ------------------ REGISTER ------------------
 router.post("/register", upload.single("avatar"), async (req, res) => {
   try {
@@ -83,13 +89,7 @@ router.get("/:id", authenticate, async (req, res) => {
   }
 });
 
-router.get("/hello" , async (req, res) => {
-  try {
-    res.json("working");
-  } catch (err) {
-    res.status(500).json({ error: "Server error" });
-  }
-});
+
 
 // ------------------ UPDATE USER ------------------
 router.put("/:id", authenticate, async (req, res) => {
