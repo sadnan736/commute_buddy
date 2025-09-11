@@ -50,7 +50,7 @@ function UserDashboard() {
   return (
     <>
       <div className="menu">
-        <div className="logo">
+        <div className="logo-menu">
           <div className="com">Commute</div><div className="bud">Buddy</div>
         </div>
         <div className="name">

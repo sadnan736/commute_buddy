@@ -57,7 +57,7 @@ function HomePage() {
             our community for safe and reliable<br />
             traveling
           </h4>
-          <button className="explore">Explore our community</button>
+          <button className="explore" onClick={goToRegister}>Explore our community</button>
         </div>
 
         <form className="login" onSubmit={handleLogin}>
