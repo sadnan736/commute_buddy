@@ -266,7 +266,7 @@ PRs welcome! Please describe changes clearly, include repro steps or tests, and 
 
 ## 📄 License
 
-See `LICENSE`.
+This project is licensed under the [MIT License](LICENSE).
 
 ---
 
