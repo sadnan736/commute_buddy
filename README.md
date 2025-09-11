@@ -7,19 +7,19 @@
 ## Table of contents
 
 * [What is it?](#-what-is-it)
-* [Features](#features)
-* [Architecture](#architecture)
-* [Data model (MongoDB)](#data-model-mongodb)
-* [Routing engine](#routing-engine)
-* [API overview (Express)](#api-overview-express)
-* [Project structure](#project-structure)
-* [Setup](#setup)
-* [Using the app](#using-the-app)
-* [Public repo hygiene](#public-repo-hygiene)
-* [Roadmap](#roadmap)
-* [Contributing](#contributing)
-* [License](#license)
-* [Acknowledgements](#acknowledgements)
+* [Features](#-features)
+* [Architecture](#-architecture)
+* [Data model (MongoDB)](#-data-model-mongodb)
+* [Routing engine](#-routing-engine)
+* [API overview (Express)](#-api-overview-express)
+* [Project structure](#-project-structure)
+* [Setup](#-setup)
+* [Using the app](#-using-the-app)
+* [Public repo hygiene](#-public-repo-hygiene)
+* [Roadmap](#-roadmap)
+* [Contributing](#-contributing)
+* [License](#-license)
+* [Acknowledgements](#-acknowledgements)
 
 ---
 
